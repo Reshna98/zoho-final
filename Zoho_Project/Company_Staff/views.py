@@ -27370,3 +27370,61 @@ def convertRetainerInvoice(request, retainer_id):
         return redirect('/')
         
 #End
+###payment_made-reshna
+def payment_made(request):
+    if 'login_id' in request.session:
+        log_id = request.session['login_id']
+        log_details= LoginDetails.objects.get(id=log_id)
+        if log_details.user_type == 'Company':
+            cmp = CompanyDetails.objects.get(login_details = log_details)
+            dash_details = CompanyDetails.objects.get(login_details=log_details)
+        else:
+            cmp = StaffDetails.objects.get(login_details = log_details).company
+            dash_details = StaffDetails.objects.get(login_details=log_details)
+
+        # rec = RecurringInvoice.objects.filter(company = cmp)
+        allmodules= ZohoModules.objects.get(company = cmp)
+        context = {
+             'allmodules':allmodules, 'details':dash_details
+        }
+        return render(request,'zohomodules/payment_made/payment_listout.html', context)
+    else:
+        return redirect('/')
+
+def payment_made_add(request):
+    if 'login_id' in request.session:
+        login_id = request.session['login_id']
+        if 'login_id' not in request.session:
+            return redirect('/')
+        log_details= LoginDetails.objects.get(id=login_id)
+        if log_details.user_type == 'Staff':
+            dash_details = StaffDetails.objects.get(login_details=log_details)
+            company = dash_details.company
+        elif log_details.user_type == 'Company':
+            dash_details = CompanyDetails.objects.get(login_details=log_details)
+            company = dash_details
+
+        item=Items.objects.filter(company=company)
+        allmodules= ZohoModules.objects.get(company=company,status='New')
+        banks = Banking.objects.filter(company=company)
+        vendors = Vendor.objects.filter(company=company)
+        items = Items.objects.filter(company=company)
+        payments=Company_Payment_Term.objects.filter(company_id = company)
+     
+
+        context = {
+                'details': dash_details,
+                'item': item,
+                'allmodules': allmodules,
+                'banks':banks,
+                'vendors':vendors,
+                'payments':payments,
+                'items':items,
+               
+                
+                
+                'company':company,
+        }
+        return render(request,'zohomodules/payment_made/payment_add.html',context)
+    else:
+        return redirect('/')
