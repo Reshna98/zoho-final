@@ -1714,3 +1714,80 @@ class RetainerInvoiceHistory(models.Model):
     date = models.DateTimeField(auto_now_add=True)
     action = models.CharField(max_length=100, default='')  # Provide a default value here
     # Add any other fields as needed
+##########Payment made
+class debitnote(models.Model):
+    company = models.ForeignKey(CompanyDetails, on_delete=models.CASCADE,null=True)
+    login_details = models.ForeignKey(LoginDetails, on_delete=models.CASCADE,null=True)
+    vendor = models.ForeignKey(Vendor, on_delete=models.CASCADE,null=True)
+    bills = models.ForeignKey(Bill, on_delete=models.CASCADE,null=True)
+
+    
+    profile_name = models.CharField(max_length=100, null=True, blank=True)
+
+    vendor_email = models.EmailField(max_length=100, null=True, blank=True)
+    billing_address = models.TextField(null=True, blank=True)
+    gst_type = models.CharField(max_length=100, null=True, blank=True)
+    gstin = models.CharField(max_length=100, null=True, blank=True)
+    place_of_supply = models.CharField(max_length=100, null=True, blank=True)
+    bill_type = models.CharField(max_length=20, null=True, blank=True)
+    reference_no = models.BigIntegerField(null=True, blank=True)
+    bill_no = models.CharField(max_length=100)
+    debitnote_date = models.DateField(null=True, blank=True)
+    debitnote_no = models.CharField(max_length=100, null=True, blank=True)
+    
+    price_list_applied = models.BooleanField(null=True, default=False)
+    price_list = models.ForeignKey(PriceList, on_delete = models.SET_NULL,null=True)
+    payment_method = models.CharField(max_length=20, null=True,blank=True)
+    cheque_number = models.CharField(max_length=100, null=True, blank=True)
+    upi_number = models.CharField(max_length=100, null=True, blank=True)
+    bank_account_number = models.CharField(max_length=100, null=True, blank=True)
+    description = models.CharField(max_length=200, null=True, blank=True)
+    terms_and_conditions = models.TextField(null=True, blank=True)
+    document=models.FileField(upload_to="images/",null=True)
+    subtotal = models.IntegerField(default=0, null=True)
+    igst = models.FloatField(default=0.0, null=True, blank=True)
+    cgst = models.FloatField(default=0.0, null=True, blank=True)
+    sgst = models.FloatField(default=0.0, null=True, blank=True)
+    tax_amount = models.FloatField(default=0.0, null=True, blank=True)
+    adjustment = models.FloatField(default=0.0, null=True, blank=True)
+    shipping_charge = models.FloatField(default=0.0, null=True, blank=True)
+    grandtotal = models.FloatField(default=0.0, null=True, blank=True)
+    advance_paid = models.FloatField(default=0.0, null=True, blank=True)
+    balance = models.FloatField(default=0.0, null=True, blank=True)
+    STATUS_CHOICES = [
+        ('Draft', 'Draft'),
+        ('Saved', 'Saved'),
+    ]
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES)
+class debitnote_History(models.Model):
+    company = models.ForeignKey(CompanyDetails, on_delete=models.CASCADE)
+    login_details = models.ForeignKey(LoginDetails, on_delete=models.CASCADE)
+    debit_note = models.ForeignKey(debitnote, on_delete=models.CASCADE)
+    date = models.DateField(auto_now_add=True)
+    
+    action = models.CharField(max_length=20, null=True)
+
+
+class debitnote_item(models.Model):
+    login_details = models.ForeignKey(LoginDetails, on_delete=models.CASCADE,null=True,blank=True)
+    company=models.ForeignKey(CompanyDetails,on_delete=models.CASCADE,null=True,blank=True)
+    debit_note=models.ForeignKey(debitnote,on_delete=models.CASCADE,null=True,blank=True)
+    
+    item=models.ForeignKey(Items, on_delete=models.CASCADE,null=True,blank=True)
+    hsn = models.CharField(max_length=200,null=True)
+    quantity = models.IntegerField(null=True)
+    price=  models.FloatField(default=0.0, null=True, blank=True)
+    tax_rate= models.FloatField(default=0.0, null=True, blank=True)
+    discount= models.FloatField(default=0.0, null=True, blank=True)
+    total =  models.FloatField(default=0.0, null=True, blank=True)
+
+
+class debitnote_Reference(models.Model):
+    login_details = models.ForeignKey(LoginDetails, on_delete=models.CASCADE,null=True,blank=True)
+    company=models.ForeignKey(CompanyDetails,on_delete=models.CASCADE,null=True,blank=True)
+    reference_number = models.BigIntegerField(null=True, blank=True)
+
+class debitnote_Comments(models.Model):
+    company = models.ForeignKey(CompanyDetails, on_delete=models.CASCADE, null=True)
+    debit_note=models.ForeignKey(debitnote,on_delete=models.CASCADE,null=True,blank=True)
+    comments = models.CharField(max_length=500,null=True,blank=True)

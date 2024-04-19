@@ -148,7 +148,7 @@
                     </div>
                     <div class="container-fluid">
                         <br>
-                        <table class="table table-responsive-md mt-4" id="recurring_inv_table">
+                        <table class="table table-responsive-md mt-4" id="paytable">
                             <thead>
                                 <tr class="text-center text-white">
                                     <th>#</th>
@@ -197,11 +197,11 @@
                 <div class="file_instructions">
                     <div class="alert alert-danger" role="alert">
                         <span class="fw-bolder">IMPORTANT:</span>
-                        <p>File should have 2 sheets named 'recurring_invoice' & 'items' and column name & order should be in the given formate(Uppercase).</p>
+                        <p>File should have 2 sheets named 'payment_made' & 'items' and column name & order should be in the given formate(Uppercase).</p>
                         <p class="fw-bolder">Recurring Invoice sheet - SLNO*, CUSTOMER*, DATE*, PLACE OF SUPPLY*, PROFILE NAME, ENTRY TYPE, RI NO*, TERMS*, REPEAT EVERY*, PRICE LIST, DESCRIPTION, SUB TOTAL*, IGST*, CGST*, SGST*, TAX AMOUNT*, ADJUSTMENT, SHIPPING CHARGE, GRAND TOTAL*, ADVANCE </p>
                         <p class="fw-bolder">Items sheet - RI NO**, PRODUCT*, HSN*, QUANTITY*, PRICE*, TAX PERCENTAGE*, DISCOUNT, TOTAL* </p>
                         <p>* All required columns should be filled.</p>
-                        <p>** <b>RI NO</b> is <b>SLNO</b> of recurring_invoice</p>
+                        <p>** <b>RI NO</b> is <b>SLNO</b> of payment_made</p>
                         <p>Place of supply should be in the give format with state code('Ex: [KL]-Kerala') or '[OT]-Other Territory'.</p>
                         <p>Date format should be 'YYYY-MM-DD' or 'DD-MM-YYYY'.</p>
                     </div>
@@ -234,7 +234,7 @@
     })
 
     $(document).ready(function() {
-        var $rows = $('#recurring_inv_table tbody tr');
+        var $rows = $('#paytable tbody tr');
         $('#search').keyup(function() {
             var val = $.trim($(this).val()).replace(/ +/g, ' ').toLowerCase();
             $rows.show().filter(function() {
@@ -254,7 +254,7 @@
 
     function sorttable(col) {
         var table, rows, switching, i, x, y, shouldSwitch;
-        table = document.getElementById("recurring_inv_table");
+        table = document.getElementById("paytable");
         switching = true;
         
         while (switching) {
@@ -282,7 +282,7 @@
 
     function filtertable(key) {
         var input, filter, table, tr, td, i, txtValue;
-        table = document.getElementById("recurring_inv_table");
+        table = document.getElementById("paytable");
         tr = table.getElementsByTagName("tr");
 
         for (i = 0; i < tr.length; i++) {
@@ -299,16 +299,16 @@
     }
 
     function exportToExcel() {
-        var table = document.querySelector('#recurring_inv_table');
+        var table = document.querySelector('#paytable');
         var ws = XLSX.utils.table_to_sheet(table);
         var wb = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
-        XLSX.writeFile(wb, 'Recurring_invoice.xlsx');
+        XLSX.writeFile(wb, 'Payment_made.xlsx');
     }
 
     function sortTable(columnIndex) {
     var table, rows, switching, i, x, y, shouldSwitch;
-    table = document.getElementById("recurring_inv_table");
+    table = document.getElementById("paytable");
     switching = true;
 
     while (switching) {
@@ -334,7 +334,7 @@
   }
 
   function filterTable(row,filterValue) {
-    var table = document.getElementById("recurring_inv_table");
+    var table = document.getElementById("paytable");
     var rows = table.getElementsByTagName("tr");
 
     for (var i = 1; i < rows.length; i++) {
