@@ -27428,3 +27428,171 @@ def payment_made_add(request):
         return render(request,'zohomodules/payment_made/payment_add.html',context)
     else:
         return redirect('/')
+
+def vendor_paymentmade(request):
+    if 'login_id' in request.session:
+        if request.session.has_key('login_id'):
+            log_id = request.session['login_id']
+           
+        else:
+            return redirect('/')
+        log_details= LoginDetails.objects.get(id=log_id)
+        if log_details.user_type=='Staff':
+            staff_details=StaffDetails.objects.get(login_details=log_details)
+            dash_details = CompanyDetails.objects.get(id=staff_details.company.id)
+
+        else:    
+            dash_details = CompanyDetails.objects.get(login_details=log_details)
+
+        
+
+       
+        if request.method=="POST":
+            vendor_data=Vendor()
+            vendor_data.login_details=log_details
+            vendor_data.company=dash_details
+            vendor_data.title = request.POST.get('salutation')
+            vendor_data.first_name=request.POST['first_name']
+            vendor_data.last_name=request.POST['last_name']
+            vendor_data.company_name=request.POST['company_name']
+            vendor_data.vendor_display_name=request.POST['v_display_name']
+            vendor_data.vendor_email=request.POST['vendor_email']
+            vendor_data.phone=request.POST['w_phone']
+            vendor_data.mobile=request.POST['m_phone']
+            vendor_data.skype_name_number=request.POST['skype_number']
+            vendor_data.designation=request.POST['designation']
+            vendor_data.department=request.POST['department']
+            vendor_data.website=request.POST['website']
+            vendor_data.gst_treatment=request.POST['gst']
+            vendor_data.vendor_status="Active"
+            vendor_data.remarks=request.POST['remarks']
+            vendor_data.current_balance=request.POST['opening_bal']
+
+            x=request.POST['gsts']
+            if x=="Unregistered Business-not Registered under GST":
+                vendor_data.pan_number=request.POST['pan_number']
+                vendor_data.gst_number="null"
+            else:
+                vendor_data.gst_number=request.POST['gst_number']
+                vendor_data.pan_number=request.POST['pan_number']
+
+            vendor_data.source_of_supply=request.POST['source_supply']
+            vendor_data.currency=request.POST['currency']
+            print(vendor_data.currency)
+            op_type=request.POST.get('op_type')
+            if op_type is not None:
+                vendor_data.opening_balance_type=op_type
+            else:
+                vendor_data.opening_balance_type='Opening Balance not selected'
+    
+            vendor_data.opening_balance=request.POST['opening_bal']
+            vendor_data.payment_term=Company_Payment_Term.objects.get(id=request.POST['payment_terms'])
+
+           
+            vendor_data.billing_attention=request.POST['battention']
+            vendor_data.billing_country=request.POST['bcountry']
+            vendor_data.billing_address=request.POST['baddress']
+            vendor_data.billing_city=request.POST['bcity']
+            vendor_data.billing_state=request.POST['bstate']
+            vendor_data.billing_pin_code=request.POST['bzip']
+            vendor_data.billing_phone=request.POST['bphone']
+            vendor_data.billing_fax=request.POST['bfax']
+            vendor_data.shipping_attention=request.POST['sattention']
+            vendor_data.shipping_country=request.POST['s_country']
+            vendor_data.shipping_address=request.POST['saddress']
+            vendor_data.shipping_city=request.POST['scity']
+            vendor_data.shipping_state=request.POST['sstate']
+            vendor_data.shipping_pin_code=request.POST['szip']
+            vendor_data.shipping_phone=request.POST['sphone']
+            vendor_data.shipping_fax=request.POST['sfax']
+            vendor_data.save()
+            print(vendor_data)
+           # ................ Adding to History table...........................
+            
+            vendor_history_obj=VendorHistory()
+            vendor_history_obj.company=dash_details
+            vendor_history_obj.login_details=log_details
+            vendor_history_obj.vendor=vendor_data
+            vendor_history_obj.date=date.today()
+            vendor_history_obj.action='Completed'
+            vendor_history_obj.save()
+
+    # .......................................................adding to remaks table.....................
+            vdata=Vendor.objects.get(id=vendor_data.id)
+            vendor=vdata
+            rdata=Vendor_remarks_table()
+            rdata.remarks=request.POST['remarks']
+            rdata.company=dash_details
+            rdata.vendor=vdata
+            rdata.save()
+
+            print(rdata)
+     #...........................adding multiple rows of table to model  ........................................................  
+        
+            title =request.POST.getlist('tsalutation[]')
+            first_name =request.POST.getlist('tfirst_name[]')
+            last_name =request.POST.getlist('tlast_name[]')
+            email =request.POST.getlist('tEmail[]')
+            work_phone =request.POST.getlist('tWorkPhone[]')
+            mobile =request.POST.getlist('tMobilePhone[]')
+            skype_name_number =request.POST.getlist('tSkype[]')
+            designation =request.POST.getlist('tDesignation[]')
+            department =request.POST.getlist('tDepartment[]') 
+            vdata=Vendor.objects.get(id=vendor_data.id)
+            vendor=vdata
+           
+           
+            if len(title)==len(first_name)==len(last_name)==len(email)==len(work_phone)==len(mobile)==len(skype_name_number)==len(designation)==len(department):
+                mapped2=zip(title,first_name,last_name,email,work_phone,mobile,skype_name_number,designation,department)
+                mapped2=list(mapped2)
+                print(mapped2)
+                for ele in mapped2:
+                    created = VendorContactPerson.objects.get_or_create(title=ele[0],first_name=ele[1],last_name=ele[2],email=ele[3],
+                        work_phone=ele[4],mobile=ele[5],skype_name_number=ele[6],designation=ele[7],department=ele[8],company=dash_details,vendor=vendor)
+                
+        
+        
+            return JsonResponse({'status':True})
+        else:
+            return JsonResponse({'status':False})
+
+def payment_vendor_details(request):
+    if 'login_id' in request.session:
+        log_id = request.session['login_id']
+        log_details= LoginDetails.objects.get(id=log_id)
+        if log_details.user_type == 'Company':
+            cmp = CompanyDetails.objects.get(login_details = log_details)
+        else:
+            cmp = StaffDetails.objects.get(login_details = log_details).company
+        
+        vendId = request.POST['id']
+        vend = Vendor.objects.get(id = vendId)
+        if vend:
+            context = {
+                'status':True, 'id':vend.id, 'email':vend.vendor_email, 'gstType':vend.gst_treatment,'shipState':vend.source_of_supply,'gstin':False if vend.gst_number == "" or vend.gst_number == None or vend.gst_number == 'null' else True, 'gstNo':vend.gst_number,
+                'street':vend.billing_address, 'city':vend.billing_city, 'state':vend.billing_state, 'country':vend.billing_country, 'pincode':vend.billing_pin_code
+            }
+            return JsonResponse(context)
+        else:
+            return JsonResponse({'status':False, 'message':'Something went wrong..!'})
+    else:
+       return redirect('/')
+
+def payment_bankaccount(request):
+    if 'login_id' in request.session:
+        log_id = request.session['login_id']
+        log_details= LoginDetails.objects.get(id=log_id)
+        if log_details.user_type == 'Company':
+            cmp = CompanyDetails.objects.get(login_details = log_details)
+        else:
+            cmp = StaffDetails.objects.get(login_details = log_details).company
+        
+        bankId = request.GET['id']
+        bnk = Banking.objects.get(id = bankId)
+
+        if bnk:
+            return JsonResponse({'status':True, 'account':bnk.bnk_acno})
+        else:
+            return JsonResponse({'status':False, 'message':'Something went wrong..!'})
+    else:
+       return redirect('/')

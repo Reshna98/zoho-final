@@ -658,9 +658,9 @@ urlpatterns = [
     #-------------------------------Payment_made-------------------------------
     path('payment_made',views.payment_made,name='payment_made'),
     path('payment_made_add',views.payment_made_add,name='payment_made_add'),
-    # path('',views.,name=''),
-    # path('',views.,name=''),
-    # path('',views.,name=''),
+    path('vendor_paymentmade',views.vendor_paymentmade,name='vendor_paymentmade'),
+    path('payment_vendor_details',views.payment_vendor_details,name='payment_vendor_details'),
+    path('payment_bankaccount',views.payment_bankaccount,name='payment_bankaccount'),
     # path('',views.,name=''),
     # path('',views.,name=''),
     # path('',views.,name=''),

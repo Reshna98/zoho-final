@@ -1745,6 +1745,7 @@ class payment_made(models.Model):
 class payment_made_bills(models.Model):
     company = models.ForeignKey(CompanyDetails, on_delete=models.CASCADE,null=True)
     login_details = models.ForeignKey(LoginDetails, on_delete=models.CASCADE,null=True)
+    vendor=models.ForeignKey(Vendor,on_delete=models.CASCADE,null=True)
     payment_made = models.ForeignKey(payment_made, on_delete=models.CASCADE,null=True)
     bill_type = models.CharField(max_length=100, null=True, blank=True)
     bill_number=models.FloatField(default=0.0, null=True, blank=True)
