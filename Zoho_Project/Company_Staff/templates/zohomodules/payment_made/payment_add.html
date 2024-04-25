@@ -2221,7 +2221,7 @@ $('#mphone').on('input', function() {
                 'department' : $('#dept').val(),
                 'website' : $('#web').val(),
                 'gst' : gstType,
-                'remark' : $('#rmrk').val(),
+                'remarks' : $('#rmrk').val(),
                 'pan_number' : panNo,
                 'gst_number' : gstIN,
                 'source_supply' : placeSupply,
@@ -2261,9 +2261,9 @@ $('#mphone').on('input', function() {
                 if(response.status){
                     console.log("AJAX Success",response)
                     document.getElementById("newvendorform").reset();
-                    if($('#newvendor').hasClass('show')){
-                        $("#newvendor ").click()
-                    }
+                    // if($('#newvendor').hasClass('show')){
+                    //     $("#newvendor ").click()
+                    // }
                     reloadvendor();
                 }else{
                     alert(response.message)

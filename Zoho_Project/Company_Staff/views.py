@@ -27468,7 +27468,7 @@ def vendor_paymentmade(request):
             vendor_data.remarks=request.POST['remarks']
             vendor_data.current_balance=request.POST['opening_bal']
 
-            x=request.POST['gsts']
+            x=request.POST['gst']
             if x=="Unregistered Business-not Registered under GST":
                 vendor_data.pan_number=request.POST['pan_number']
                 vendor_data.gst_number="null"
