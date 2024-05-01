@@ -66,21 +66,20 @@
     margin-left: 100px;
   }
 
-  ::-webkit-scrollbar {
-    display: none;
-  }
 
-  ::-webkit-scrollbar-track {
-    background: #f1f1f1; 
-  }
+::-webkit-scrollbar {
+    width: 6px ;
+}
 
-  ::-webkit-scrollbar-thumb {
-    background: #888; 
-  }
+::-webkit-scrollbar-track {
+    background: black ;
+}
 
-  ::-webkit-scrollbar-thumb:hover {
-    background: #555; 
-  }
+::-webkit-scrollbar-thumb {
+    background: #888 ;
+    border-radius: 3px ;
+}
+
 
   .item{
     height: auto;
@@ -1089,16 +1088,15 @@
                 
                 <div class="row mt-5">
                     <div class="col-sm-12 col-md-2 col-lg-2 mt-3">
-                        <button type="submit" class="btn btn-outline-warning form-control bg-warning text-dark" id="newVendorSave" style="font-weight: bold;">Save</button>
+                        <button type="button" class="save_btn btn btn-outline-warning form-control bg-warning text-dark" id="newVendorSave" style="font-weight: bold;">Save</button>
                        
                     </div>
                     
                     <div class=" col-sm-12 col-md-2 col-lg-2 mt-3">
-                        <button type="reset" class="form-control  bg-warning text-dark close_vendor_modal" style="font-weight: bold;">Cancel</button>
+                        <button  type="button" class=" btn form-control  bg-warning text-dark close_vendor_modal" style="font-weight: bold;"data-dismiss="modal" aria-label="Close">Cancel</button>
                        
                     </div> 
-
-
+                  
                 </div>
 
        </form>
@@ -2198,10 +2196,10 @@ $('#mphone').on('input', function() {
         }
       
     }
-    if(nullExists){
-        alert('Fill All Fields of Contact persons table')
-        return
-    }
+    // if(nullExists){
+    //     alert('Fill All Fields of Contact persons table')
+    //     return
+    // }
 
       if(fName != "" && lName != "" && placeSupply != "" && gstType != "" && panNo != "" && Email != "" && Mob != "" ){
           $.ajax({
@@ -2261,10 +2259,10 @@ $('#mphone').on('input', function() {
                 if(response.status){
                     console.log("AJAX Success",response)
                     document.getElementById("newvendorform").reset();
-                    // if($('#newvendor').hasClass('show')){
-                    //     $("#newvendor ").click()
-                    // }
-                    reloadvendor();
+                    if($('#newVendor').hasClass('show')){
+                        $("#newVendor .close_vendor_modal").click()
+                    }
+                    reloadvendor(title, fName, lName);
                 }else{
                     alert(response.message)
                 }
@@ -2284,7 +2282,7 @@ $('#mphone').on('input', function() {
   function reloadvendor(title,fName,lName) {
       const fullName = title+' '+fName+' '+lName
       $.ajax({
-          url: "{% url 'getvendorsAjax' %}",
+          url: "{% url 'reloadvendor' %}",
           type: "GET",
           dataType: "json",
           data: {},
@@ -2300,7 +2298,7 @@ $('#mphone').on('input', function() {
                   const ID = `${value[0]}`
 
                   if(vendorDetails == fullName){
-                      getvendorDetails(value[0], vendorDetails)
+                      getVendorDetails(value[0], vendorDetails)
                   }
                   const listItem = $(`
                       <li class="dropdown-item vendors-options text-white" onclick="getVendorDetails('${ID}', '${vendorDetails}')">${vendorDetails}</li>`
@@ -2318,7 +2316,7 @@ $('#mphone').on('input', function() {
      
 
       if ($('#newpayment').hasClass('show')){
-          $('#newpayment .cust_payment_modal_close').click();
+          $('#newpayment .vend_payment_modal_close').click();
       }
   }
  

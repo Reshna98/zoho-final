@@ -27555,7 +27555,25 @@ def vendor_paymentmade(request):
             return JsonResponse({'status':True})
         else:
             return JsonResponse({'status':False})
+        
+def reloadvendor(request):
+    if 'login_id' in request.session:
+        log_id = request.session['login_id']
+        log_details= LoginDetails.objects.get(id=log_id)
+        if log_details.user_type == 'Company':
+            com = CompanyDetails.objects.get(login_details = log_details)
+        else:
+            com = StaffDetails.objects.get(login_details = log_details).company
 
+        options = {}
+        option_objects = Vendor.objects.filter(company = com, vendor_status = 'Active')
+        for option in option_objects:
+            options[option.id] = [option.id , option.title, option.first_name, option.last_name]
+
+        return JsonResponse(options)
+    else:
+        return redirect('/')
+    
 def payment_vendor_details(request):
     if 'login_id' in request.session:
         log_id = request.session['login_id']
