@@ -243,7 +243,7 @@
       <ol class="breadcrumb">
         <li class="breadcrumb-item"><a href="{% url 'company_dashboard' %}" class="text-warning-emphasis">Dashboard</a></li>
         <li class="breadcrumb-item"><a class="text-warning-emphasis">Purchase</a></li>
-        <li class="breadcrumb-item"><a href="{% url 'payment_made' %}" class="text-warning-emphasis">Payment Made</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'payment_mades' %}" class="text-warning-emphasis">Payment Made</a></li>
         <li class="breadcrumb-item" aria-current="page">Create</li>
       </ol>
     </nav>
@@ -366,7 +366,7 @@
                         <label for="" class="labels">Payment No.</label>
                       </div>
                       <div class="col-md-9">
-                        <input type="text" class="form-control bg-black text-white" name="payment_no"  id="paymentNumber" placeholder="{{payNo}}" required>
+                        <input type="text" class="form-control bg-black text-white" name="payment_no"  id="paymentNumber" placeholder="{{payno}}" required>
                         <span class="text-danger ml-1" id="payNoErr"></span>
                       </div>
                     </div>
@@ -376,7 +376,7 @@
                     <div class="row">
                       <label for="" class="col-md-3 labels">Reference No.</label>
                       <div class="col-md-9">
-                        <input type="text" class="form-control bg-black text-white" name="reference_number" value="{{ref_no}}" readonly>
+                        <input type="text" class="form-control bg-black text-white" name="reference_number" value="{{refno}}" readonly>
                       </div>
                     </div>
                   </div>
@@ -452,11 +452,11 @@
                   <table class="table table-bordered" id="billTable">
                     <thead>
                         <tr>
-                            <th class="text-center text-white ">Type</th>
-                            <th class="text-center text-white ">Date</th>
-                            <th class="text-center text-white ">Bill Number</th>
-                            <th class="text-center text-white ">Balance Amount</th>
-                            <th class="text-center text-white ">Payment</th>
+                            <th class="text-center text-white"style="width: 10%;">Type</th>
+                            <th class="text-center text-white" style="width: 10%;">Date</th>
+                            <th class="text-center text-white" style="width: 10%;">Bill Number</th>
+                            <th class="text-center text-white"style="width: 10%;">Balance Amount</th>
+                            <th class="text-center text-white"style="width: 10%;">Payment</th>
                         </tr>
                     </thead>
                     <tbody id="items-table-body">
@@ -579,7 +579,7 @@
                     <div class="col-sm-12 col-md-3 col-lg-3 col-form-label"><label>Vendor Display Name</label></div>
                     <div class="col-sm-12 col-md-6 col-lg-7">
                        
-                        <!-- <select class="form-control bg-light text-dark "  name="v_display_name" id="v_display_name"> -->
+                        <select class="form-control bg-light text-dark "  name="v_display_name" id="v_display_name">
                             
                         </select>
                         
@@ -1143,7 +1143,7 @@
                 <div class="col-lg-12 col-md-12 col-sm-12">
                 <div class="d-flex">
                     <button class="btn save_btn rounded-pill text-grey w-50 my-1 mx-1 btn-outline-warning "
-                    type="submit" data-dismiss="modal" id="termSave1">Save
+                    type="submit" data-dismiss="modal" id="termSave">Save
                     </button> 
                     
 
@@ -1187,21 +1187,27 @@
                   csrfmiddlewaretoken: '{{ csrf_token }}',
               },
               
-              success: function(data){
-                  console.log('AJAX-Response-->',data);
-                  document.getElementById('vendId').value = data.id;
-                  document.getElementById('vendorEmail').value = data.email;
-                  document.getElementById('sourceOfSupply').value = data.shipState;
-                  document.getElementById('vendorGstType').value = data.gstType;
-                  if(data.street == "" && data.city == "" && data.state == ""){
+            //   success: function(data){
+            //       console.log('AJAX-Response-->',data);
+            //       populateTable(data);
+            success: function(response) {
+                console.log('AJAX-Response-->', response);
+                  var data = response.data; 
+                            populateTable(data);
+
+                  document.getElementById('vendId').value = response.id;
+                  document.getElementById('vendorEmail').value = response.email;
+                  document.getElementById('sourceOfSupply').value =  response.shipState;
+                  document.getElementById('vendorGstType').value =  response.gstType;
+                  if(response.street == "" && response.city == "" && response.state == ""){
                     $("#billAddressSection").hide();
                   }else{
                     $('#billAddressSection').show();
-                    document.getElementById('billAddress').value = data.street + ',' + data.city + '\n' + data.state + '\n' + data.country  + '\n' + data.pincode ;
+                    document.getElementById('billAddress').value = response.street + ',' + response.city + '\n' + response.state + '\n' + response.country  + '\n' + response.pincode ;
                   }
-                  if(data.gstin){
+                  if(response.gstin){
                       document.getElementById('vendorGstInDisplay').style.display = 'flex';
-                      document.getElementById('vendorGSTIN').value = data.gstNo;
+                      document.getElementById('vendorGSTIN').value = response.gstNo;
                   }else{
                       document.getElementById('vendorGstInDisplay').style.display = 'none';
                       document.getElementById('vendorGSTIN').value = '';
@@ -1939,7 +1945,7 @@ function updateOutputFields() {
 
   $.ajax({
     type : 'POST',
-    url:"{% url 'payment_terms_add' %}",
+    url:"{% url 'vendor_Pterm' %}",
 
     data:{
         name : $("#tname").val(),
@@ -2319,7 +2325,52 @@ $('#mphone').on('input', function() {
           $('#newpayment .vend_payment_modal_close').click();
       }
   }
- 
+
+
+// $('#vendor').change(function() {
+//     var selectedVendorId = $(this).val();
+    
+//     $.ajax({
+//         url:"{% url 'payment_vendor_details' %}",  
+//         method: 'GET',
+//         data: { id: selectedVendorId },
+//         success: function(response) {
+//             // Populate the table with the retrieved data
+//             populateTable(response);
+//         },
+//         error: function(xhr, status, error) {
+//             console.error('Error fetching data:', error);
+//         }
+//     });
+// });
+
+// Function to populate the table with data
+function populateTable(data) {
+    console.log("Data to populate table:", data);
+    $('#items-table-body').empty();
+    
+    console.log('Before loop');
+    $.each(data, function(index, item) {
+        console.log("Balance Amount:", item.balanceAmount); 
+      
+        var rowHtml = '<tr>' +
+    '<td class ="text-white text-center type">' + item.type + '</td>'+
+    '<td><input type="date" class="form-control bg-black text-white text-center date" value="' + item.date + '" readonly></td>' +
+    '<td><input type="text" class="form-control bg-black text-white text-center billnum" value="' + item.bill_number + '" readonly></td>' +
+    '<td><input type="number" class="form-control bg-black text-white text-center bal" value="' + item.balance_amount + '" readonly></td>' +
+    '<td><input type="number" class="form-control bg-black text-white text-center payment" placeholder="Enter Payment"></td>' +
+'</tr>';
+
+$('#items-table-body').append(rowHtml);
+
+    });
+    console.log('After loop');
+}
+
+
+
+
+
 </script>
 
 <!-- vendor end -->

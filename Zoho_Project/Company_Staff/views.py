@@ -27371,7 +27371,7 @@ def convertRetainerInvoice(request, retainer_id):
         
 #End
 ###payment_made-reshna
-def payment_made(request):
+def payment_mades(request):
     if 'login_id' in request.session:
         log_id = request.session['login_id']
         log_details= LoginDetails.objects.get(id=log_id)
@@ -27410,9 +27410,46 @@ def payment_made_add(request):
         vendors = Vendor.objects.filter(company=company)
         items = Items.objects.filter(company=company)
         payments=Company_Payment_Term.objects.filter(company_id = company)
+        latest_paymade = payment_made.objects.filter(company =company).order_by('-id').first()
+
+        new_number = int(latest_paymade.reference_no) + 1 if latest_paymade else 1
+
+        if payment_made_Reference.objects.filter(company = company).exists():
+            deleted = payment_made_Reference.objects.get(company =company)
+            
+            if deleted:
+                while int(deleted.reference_number) >= new_number:
+                    new_number+=1
+
+        # Finding next rec_invoice number w r t last rec_invoice number if exists.
+        nxtpmade = ""
+        lastpmade = payment_made.objects.filter(company=company).last()
+
+        if lastpmade:
+            p_no = str(lastpmade.payment_no)
+            numbers = []
+            stri = []
+            for word in p_no:
+                if word.isdigit():
+                    numbers.append(word)
+                else:
+                    stri.append(word)
+
+            num = ''.join(numbers)
+            st = ''.join(stri)
+
+            p_num = int(num) + 1
+            if num[0] == 0:
+                nxtpmade = st + num.zfill(len(num)) 
+            else:
+                nxtpmade = st + str(p_num).zfill(len(num))
+        else:
+            nxtpmade = 'PM001'
      
 
         context = {
+                'refno':new_number,
+                'payno':nxtpmade,
                 'details': dash_details,
                 'item': item,
                 'allmodules': allmodules,
@@ -27420,9 +27457,6 @@ def payment_made_add(request):
                 'vendors':vendors,
                 'payments':payments,
                 'items':items,
-               
-                
-                
                 'company':company,
         }
         return render(request,'zohomodules/payment_made/payment_add.html',context)
@@ -27584,10 +27618,55 @@ def payment_vendor_details(request):
             cmp = StaffDetails.objects.get(login_details = log_details).company
         
         vendId = request.POST['id']
-        vend = Vendor.objects.get(id = vendId)
+        vend = Vendor.objects.get(id = vendId,company=cmp)
+        bills = Bill.objects.filter(Vendor=vend,Company=cmp)
+        recurring_bills = Recurring_bills.objects.filter(vendor_details=vend,company=cmp)
+        debit_notes = debitnote.objects.filter(vendor=vend,company=cmp)
+       
+        data = []
+        data.append({
+                'type': 'Opening Balance',
+                'date': timezone.now().date(),
+                'bill_number':'Nil',
+                'balance_amount': vend.opening_balance ,
+                
+            })
+        for bill in bills:
+            data.append({
+                'type': 'Bill',
+                'date': bill.Bill_Date,
+                'bill_number': bill.Bill_Number,
+                'balance_amount': bill.Balance,
+                
+            })
+
+        for recurring_bill in recurring_bills:
+            print("rec_bill_date:", recurring_bill.rec_bill_date)
+            print("recc_bill_no:", recurring_bill.recc_bill_no)
+            print("bal:", recurring_bill.bal)
+            formatted_date = recurring_bill.rec_bill_date.strftime("%Y-%m-%d")
+            data.append({
+                'type': 'Recurring Bill',
+                'date':formatted_date ,
+                'bill_number': recurring_bill.recc_bill_no,
+                'balance_amount': recurring_bill.bal,
+                
+            })
+
+        for debit_note in debit_notes:
+            data.append({
+                'type': 'Debit Note',
+                'date': debit_note.debitnote_date,
+                'bill_number': debit_note.debitnote_no,
+                'balance_amount': debit_note.balance,
+                
+            })
+        
+        
+
         if vend:
             context = {
-                'status':True, 'id':vend.id, 'email':vend.vendor_email, 'gstType':vend.gst_treatment,'shipState':vend.source_of_supply,'gstin':False if vend.gst_number == "" or vend.gst_number == None or vend.gst_number == 'null' else True, 'gstNo':vend.gst_number,
+             'data':data,'status':True, 'id':vend.id, 'email':vend.vendor_email, 'gstType':vend.gst_treatment,'shipState':vend.source_of_supply,'gstin':False if vend.gst_number == "" or vend.gst_number == None or vend.gst_number == 'null' else True, 'gstNo':vend.gst_number,
                 'street':vend.billing_address, 'city':vend.billing_city, 'state':vend.billing_state, 'country':vend.billing_country, 'pincode':vend.billing_pin_code
             }
             return JsonResponse(context)
@@ -27595,7 +27674,39 @@ def payment_vendor_details(request):
             return JsonResponse({'status':False, 'message':'Something went wrong..!'})
     else:
        return redirect('/')
+def vendor_Pterm(request):
+    if 'login_id' in request.session:
+        if request.session.has_key('login_id'):
+            log_id = request.session['login_id']
+           
+        else:
+            return redirect('/')
+        log_details= LoginDetails.objects.get(id=log_id)
+        if log_details.user_type=='Staff':
+            staff_details=StaffDetails.objects.get(login_details=log_details)
+            dash_details = CompanyDetails.objects.get(id=staff_details.company.id)
 
+        else:    
+            dash_details = CompanyDetails.objects.get(login_details=log_details)        
+        if request.method == 'POST':
+            terms = request.POST.get('name')
+            day = request.POST.get('days')
+            normalized_data = terms.replace(" ", "")
+            pay_tm = add_space_before_first_digit(normalized_data)
+            ptr = Company_Payment_Term(term_name=pay_tm, days=day, company=dash_details)
+            ptr.save()
+            payterms_obj = Company_Payment_Term.objects.filter(company=dash_details).values('id', 'term_name')
+
+
+            payment_list = [{'id': pay_terms['id'], 'name': pay_terms['term_name']} for pay_terms in payterms_obj]
+            response_data = {
+            "message": "success",
+            'payment_list':payment_list,
+            }
+            return JsonResponse(response_data)
+
+        else:
+            return JsonResponse({'error': 'Invalid request'}, status=400)      
 def payment_bankaccount(request):
     if 'login_id' in request.session:
         log_id = request.session['login_id']
