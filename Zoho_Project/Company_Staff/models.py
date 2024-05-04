@@ -1724,7 +1724,7 @@ class payment_made(models.Model):
     billing_address = models.TextField(null=True, blank=True)
     gst_type = models.CharField(max_length=100, null=True, blank=True)
     gstin = models.CharField(max_length=100, null=True, blank=True)
-    source_of_supply_of_supply = models.CharField(max_length=100, null=True, blank=True)
+    source_of_supply = models.CharField(max_length=100, null=True, blank=True)
     reference_no = models.BigIntegerField(null=True, blank=True)
     payment_date = models.DateField(null=True, blank=True)
     payment_no = models.CharField(max_length=100, null=True, blank=True)
@@ -1733,6 +1733,7 @@ class payment_made(models.Model):
     account_number = models.CharField(max_length=100, null=True, blank=True)
     description = models.CharField(max_length=200, null=True, blank=True)
     terms_and_conditions = models.TextField(null=True, blank=True)
+    payment_method = models.CharField(max_length=100, null=True, blank=True)
     document=models.FileField(upload_to="images/",null=True)
     total = models.FloatField(default=0.0, null=True, blank=True)
     balance = models.FloatField(default=0.0, null=True, blank=True)
@@ -1748,9 +1749,8 @@ class payment_made_bills(models.Model):
     vendor=models.ForeignKey(Vendor,on_delete=models.CASCADE,null=True)
     payment_made = models.ForeignKey(payment_made, on_delete=models.CASCADE,null=True)
     bill_type = models.CharField(max_length=100, null=True, blank=True)
-    bill_number=models.FloatField(default=0.0, null=True, blank=True)
+    bill_number=models.CharField(max_length=100,null=True)
     date = models.DateField(auto_now_add=True)
-    action = models.CharField(max_length=20, null=True)
     amount_due= models.FloatField(default=0.0, null=True, blank=True)
     payment= models.FloatField(default=0.0, null=True, blank=True)
 
@@ -1762,12 +1762,12 @@ class payment_made_Reference(models.Model):
 
 class payment_made_Comments(models.Model):
     company = models.ForeignKey(CompanyDetails, on_delete=models.CASCADE, null=True)
-    debit_note=models.ForeignKey(debitnote,on_delete=models.CASCADE,null=True,blank=True)
+    payment_made=models.ForeignKey(payment_made,on_delete=models.CASCADE,null=True,blank=True)
     comments = models.CharField(max_length=500,null=True,blank=True)
 
 class payment_made_History(models.Model):
     company = models.ForeignKey(CompanyDetails, on_delete=models.CASCADE,null=True,blank=True)
     login_details = models.ForeignKey(LoginDetails, on_delete=models.CASCADE,null=True,blank=True)
-    recurring_invoice = models.ForeignKey(RecurringInvoice, on_delete=models.CASCADE,null=True,blank=True)
+    payment_made=models.ForeignKey(payment_made,on_delete=models.CASCADE,null=True,blank=True)
     date = models.DateField(auto_now_add=True)
     action = models.CharField(max_length=20, null=True)

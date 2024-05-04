@@ -27725,3 +27725,150 @@ def payment_bankaccount(request):
             return JsonResponse({'status':False, 'message':'Something went wrong..!'})
     else:
        return redirect('/')
+
+def add_paymentmade(request):
+    if 'login_id' in request.session:
+        log_id = request.session['login_id']
+        log_details= LoginDetails.objects.get(id=log_id)
+        if log_details.user_type == 'Company':
+            com = CompanyDetails.objects.get(login_details = log_details)
+        else:
+            com = StaffDetails.objects.get(login_details = log_details).company
+
+        if request.method == 'POST':
+            payNum = request.POST['payment_no']
+
+            if payment_made.objects.filter(company = com, payment_no__iexact = payNum).exists():
+                res = f'<script>alert("Payment Number `{payNum}` already exists, try another!");window.history.back();</script>'
+                return HttpResponse(res)
+
+            vend_id = request.POST['vendId']
+            vendor = Vendor.objects.get(id=vend_id)
+
+            pay = payment_made(
+                company = com,
+                login_details = com.login_details,
+                vendor =vendor,
+                vendor_email = request.POST['vendor_email'],
+                billing_address = request.POST['bill_address'],
+                gst_type = request.POST['vendor_gst_type'],
+                gstin = request.POST['vendor_gstin'],
+                source_of_supply  = request.POST['source_of_supply'],
+                reference_no = request.POST['reference_number'],
+                payment_no = payNum,
+                payment_date= request.POST['date'],
+    
+                payment_method = None if request.POST['payment_method'] == "" else request.POST['payment_method'],
+                cheque_number = None if request.POST['cheque_id'] == "" else request.POST['cheque_id'],
+                upi_number = None if request.POST['upi_id'] == "" else request.POST['upi_id'],
+                account_number = None if request.POST['bnk_id'] == "" else request.POST['bnk_id'],
+
+                total = 0.0 if request.POST['totalbal'] == "" else float(request.POST['totalbal']),
+                balance = 0.0 if request.POST['totalamt'] == "" else float(request.POST['totalamt']),
+                description = request.POST['note'],
+                terms_and_conditions = request.POST['terms']
+            )
+
+            pay.save()
+
+            if len(request.FILES) != 0:
+                pay.document=request.FILES.get('file')
+            pay.save()
+
+            if 'Draft' in request.POST:
+                pay.status = "Draft"
+            elif "Saved" in request.POST:
+                pay.status = "Saved" 
+            pay.save()
+
+            types = request.POST.getlist('ptype[]')
+            dates = request.POST.getlist('pdate[]')
+            bill_numbers = request.POST.getlist('billnum[]')
+            balance_amounts = request.POST.getlist('bal[]')
+            payment_amounts = request.POST.getlist('payment[]')
+            print("Creating payment_made_bills instance...")
+            print("Type:", types)
+            print("Date:", dates)
+            print("Bill Number:",bill_numbers)
+            print("Balance Amount:", balance_amounts)
+            print("Payment Amount:", payment_amounts )
+            for t, d, bn, ba, pa in zip(types, dates, bill_numbers, balance_amounts, payment_amounts):
+                
+                payment_made_bills.objects.create(
+                    payment_made=pay,
+                    company=com,
+                    login_details=com.login_details,
+                    vendor=vendor,
+                    bill_type=t,  
+                    bill_number=bn,
+                    date=d,
+                    amount_due=float(ba),
+                    payment=float(pa)
+                    )
+
+            payment_made_History.objects.create(
+                company = com,
+                login_details = log_details,
+                payment_made = pay,
+                action = 'Created'
+            )
+
+            return redirect(payment_mades)
+        else:
+            return redirect(payment_made_add)
+    else:
+       return redirect('/')
+
+def checkPayNumber(request):
+    if 'login_id' in request.session:
+        log_id = request.session['login_id']
+        log_details= LoginDetails.objects.get(id=log_id)
+        if log_details.user_type == 'Company':
+            com = CompanyDetails.objects.get(login_details = log_details)
+        else:
+            com = StaffDetails.objects.get(login_details = log_details).company
+        
+        PayNo = request.GET['payment_no']
+
+        
+        nxtPay = ""
+        lastPay = payment_made.objects.filter(company = com).last()
+        if lastPay:
+            pay_no = str(lastPay.payment_no)
+            numbers = []
+            stri = []
+            for word in pay_no:
+                if word.isdigit():
+                    numbers.append(word)
+                else:
+                    stri.append(word)
+
+            num = ''.join(numbers)
+            st = ''.join(stri)
+
+            pay_num = int(num) + 1
+            if num[0] == 0:
+                nxtPay = st + num.zfill(len(num)) 
+            else:
+                nxtPay = st + str(pay_num).zfill(len(num))
+       
+
+        PatternStr = []
+        for word in PayNo:
+            if word.isdigit():
+                pass
+            else:
+                PatternStr.append(word)
+        
+        pattern = ''
+        for j in PatternStr:
+            pattern += j
+        
+        if payment_made.objects.filter(company = com, payment_no__iexact = PayNo).exists():
+            return JsonResponse({'status':False, 'message':'Payment Made No. already Exists.!'})
+        elif nxtPay != "" and PayNo != nxtPay:
+            return JsonResponse({'status':False, 'message':'Payment Made No. is not continuous.!'})
+        else:
+            return JsonResponse({'status':True, 'message':'Number is okay.!'})
+    else:
+       return redirect('/')
