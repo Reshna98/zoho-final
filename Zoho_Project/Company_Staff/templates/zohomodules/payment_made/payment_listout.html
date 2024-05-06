@@ -163,15 +163,15 @@
                             </thead>
                             <tbody>
                                 {% for p in payment %}
-                                <tr class='clickable-row text-center' onclick="window.location.href=`{% url 'viewRecurringInvoice' a.id %}`">
+                                <tr class='clickable-row text-center' onclick="window.location.href=`{% url 'viewRecurringInvoice' p.id %}`">
                                     <td>{{ forloop.counter }}</td>
-                                    <td>{{ a.start_date }}</td>
-                                    <td>{{ a.rec_invoice_no }}</td>
-                                    <td>{{ a.customer.first_name }} {{ a.customer.last_name }}</td>
-                                    <td>{{ a.customer_email}}</td>
-                                    <td>{{ a.grandtotal }}</td>
-                                    <td>{{ a.status }}</td>
-                                    <td>{{ a.balance }}</td>
+                                    <td>{{ p.payment_date}}</td>
+                                    <td>{{ p.payment_no }}</td>
+                                    <td>{{ p.vendor.first_name }} {{ p.vendor.last_name }}</td>
+                                    <td>{{ p.vendor_email}}</td>
+                                    <td>{{ p.total }}</td>
+                                    <td>{{ p.status }}</td>
+                                    <td>{{ p.balance }}</td>
                                 </tr>
                                 {%endfor%}  
                             </tbody>
