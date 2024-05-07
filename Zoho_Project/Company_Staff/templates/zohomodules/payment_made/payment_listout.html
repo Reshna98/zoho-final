@@ -163,7 +163,7 @@
                             </thead>
                             <tbody>
                                 {% for p in payment %}
-                                <tr class='clickable-row text-center' onclick="window.location.href=`{% url 'viewRecurringInvoice' p.id %}`">
+                                <tr class='clickable-row text-center' onclick="window.location.href=`{% url '' p.id %}`">
                                     <td>{{ forloop.counter }}</td>
                                     <td>{{ p.payment_date}}</td>
                                     <td>{{ p.payment_no }}</td>
