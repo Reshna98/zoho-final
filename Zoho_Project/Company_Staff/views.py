@@ -27382,10 +27382,10 @@ def payment_mades(request):
             cmp = StaffDetails.objects.get(login_details = log_details).company
             dash_details = StaffDetails.objects.get(login_details=log_details)
 
-        # rec = RecurringInvoice.objects.filter(company = cmp)
+        payments = payment_made.objects.filter(company = cmp)
         allmodules= ZohoModules.objects.get(company = cmp)
         context = {
-             'allmodules':allmodules, 'details':dash_details
+             'allmodules':allmodules, 'details':dash_details, 'payments':payments
         }
         return render(request,'zohomodules/payment_made/payment_listout.html', context)
     else:
@@ -27872,3 +27872,31 @@ def checkPayNumber(request):
             return JsonResponse({'status':True, 'message':'Number is okay.!'})
     else:
        return redirect('/')
+
+def payment_overview(request, id):
+    if 'login_id' in request.session:
+        log_id = request.session['login_id']
+        log_details= LoginDetails.objects.get(id=log_id)
+        if log_details.user_type == 'Company':
+            cmp = CompanyDetails.objects.get(login_details = log_details)
+            dash_details = CompanyDetails.objects.get(login_details=log_details)
+        else:
+            cmp = StaffDetails.objects.get(login_details = log_details).company
+            dash_details = StaffDetails.objects.get(login_details=log_details)
+
+        allmodules= ZohoModules.objects.get(company = cmp)
+
+        payment = payment_made.objects.get(id = id)
+        paybills= payment_made_bills.objects.filter(payment_made = payment)
+        paymade = payment_made.objects.filter(company = cmp)
+        cmts =payment_made_Comments.objects.filter(payment_made = payment)
+        hist = payment_made_History.objects.filter(payment_made = payment)
+        last_history = payment_made_History.objects.filter(payment_made = payment).last()
+        created = payment_made_History.objects.get(payment_made = payment, action = 'Created')
+
+        context = {
+            'cmp':cmp,'allmodules':allmodules, 'details':dash_details, 'payment':payment, 'paybills': paybills, 'allpays':paymade, 'comments':cmts, 'history':hist, 'last_history':last_history, 'created':created,
+        }
+        return render(request, 'zohomodules/payment_made/payment_overview.html', context)
+    else:
+        return redirect('/')

@@ -150,7 +150,7 @@
                         <br>
                         <table class="table table-responsive-md mt-4" id="paytable">
                             <thead>
-                                <tr class="text-center text-white">
+                                <tr class="text-center text-white" >
                                     <th>#</th>
                                     <th>DATE</th>
                                     <th>PAYMENT NUMBER</th>
@@ -162,8 +162,8 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                {% for p in payment %}
-                                <tr class='clickable-row text-center' onclick="window.location.href=`{% url '' p.id %}`">
+                                {% for p in payments %}
+                                <tr class='clickable-row text-center'onclick="window.location.href=`{% url 'payment_overview' p.id %}`">
                                     <td>{{ forloop.counter }}</td>
                                     <td>{{ p.payment_date}}</td>
                                     <td>{{ p.payment_no }}</td>
