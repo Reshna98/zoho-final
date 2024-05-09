@@ -543,101 +543,74 @@
 
                       <div class="row mt-4">
                         <div class="col-md-8">
-                          <h5 class="fw-bold" style="border-bottom: 1px solid rgba(128, 128, 128, 0.6); width: fit-content;">Recurring Invoice Details</h5>
+                          <h5 class="fw-bold" style="border-bottom: 1px solid rgba(128, 128, 128, 0.6); width: fit-content;">Payment Made Details</h5>
                         </div>
                         <div class="col-md-4"></div>
                       </div>
                       <div class="d-flex px-3 justify-content-between text-black mb-2">
-                        <h6 class="mb-0">RI No.</h6>
-                        <p class="mb-0 text-right fw-bold">{{invoice.rec_invoice_no}}</p>
+                        <h6 class="mb-0">Payment_Made No.</h6>
+                        <p class="mb-0 text-right fw-bold">{{payment.payment_no}}</p>
                       </div>
                       <div class="d-flex px-3 justify-content-between text-black mb-2">
-                        <h6 class="mb-0">Start Date</h6>
-                        <p class="mb-0 text-right">{{invoice.start_date}}</p>
+                        <h6 class="mb-0">Date</h6>
+                        <p class="mb-0 text-right">{{payment.payment_date}}</p>
                       </div>
 
-                      <div class="d-flex px-3 justify-content-between text-black mb-2">
-                        <h6 class="mb-0">Customer</h6>
-                        <p class="mb-0 text-right fw-bold">{{invoice.customer.first_name}} {{invoice.customer.last_name}}</p>
-                      </div>
-
-                      <div class="d-flex px-3 justify-content-between text-black mb-2">
-                        <h6 class="mb-0">End Date</h6>
-                        <p class="mb-0 text-right">{{invoice.end_date}}</p>
-                      </div>
+                   
                       <div class="d-flex px-3 justify-content-between text-black mb-2">
                         <h6 class="mb-0">Payment Method</h6>
-                        <p class="mb-0 text-right">{{invoice.payment_method}}</p>
+                        <p class="mb-0 text-right">{{payment.payment_method }}</p>
                       </div>
-                      {%if invoice.salesOrder_no %}
+                      <div class="row mt-4">
+                        <div class="col-md-8">
+                          <h5 class="fw-bold" style="border-bottom: 1px solid rgba(128, 128, 128, 0.6); width: fit-content;">Vendor Details</h5>
+                        </div>
+                        <div class="col-md-4"></div>
+                      </div>
+                     
                       <div class="d-flex px-3 justify-content-between text-black mb-2">
-                        <h6 class="mb-0">Sales Order No.</h6>
-                        <p class="mb-0 text-right">{{invoice.salesOrder_no}}</p>
+                        <h6 class="mb-0">Vendor Name</h6>
+                        <p class="mb-0 text-right fw-bold">{{payment.vendor.first_name}} {{payment.vendor.last_name}}</p>
                       </div>
-                      {% endif %}
                       <div class="d-flex px-3 justify-content-between text-black mb-2">
-                        <h6 class="mb-0">Repeat Every</h6>
-                        <p class="mb-0 text-right">{{invoice.repeat_every.repeat_every}}</p>
+                        <h6 class="mb-0">GST Treatment</h6>
+                        <p class="mb-0 text-right" style="margin-left: 45%;">{{payment.gst_type}}</p>
                       </div>
-                      {% if invoice.billing_address != "" %}
+                      {% if payment.gstin %}
                       <div class="d-flex px-3 justify-content-between text-black mb-2">
-                        <h6 class="mb-0">Address</h6>
-                        <p class="mb-0 text-right">{{invoice.billing_address|linebreaksbr}}</p>
+                        <h6 class="mb-0">Vendor</h6>
+                        <p class="mb-0 text-right">{{payment.gstin}}</p>
                       </div>
-                      {% endif %}
+                      {%endif%}
+
+                   
+                      <div class="d-flex px-3 justify-content-between text-black mb-2">
+                        <h6 class="mb-0">Source of Supply</h6>
+                        <p class="mb-0 text-right">{{payment.source_of_supply }}</p>
+                      </div>
+                      <div class="d-flex px-3 justify-content-between text-black mb-2">
+                        <h6 class="mb-0">Billing Address</h6>
+                        <p class="mb-0 text-right" style="margin-left: 50%;">{{payment.billing_address}}</p>
+                      </div>
                      
                     </div>
+                    
 
                     <div class="col-md-6 px-3">
                       <div class="px-3 py-3 mb-3" style="background-color: #383838; border-radius: 6px;">
-                        <h4 class="text-white my-3" style="text-align: center;">Recurring Invoice Tax Details</h4>
+                        <h4 class="text-white my-3" style="text-align: center;">Payment Made Amount Details</h4>
                         <hr class="text-white" style="margin-left: 5%; margin-right: 5%">
                         <div class="d-flex justify-content-between mb-4">
-                            <h6 class="text-white" style="font-weight: 600;">Rec. Invoice Status</h6>
-                            {% if invoice.status == 'Draft' %} <span class="text-info h5" style="font-weight: 600;">DRAFT</span> {% else %} <span class="text-warning h5"  style="font-weight: 600;">SAVED</span> {% endif %}
+                            <h6 class="text-white" style="font-weight: 600;">payment_made status</h6>
+                            {% if payment.status == 'Draft' %} <span class="text-info h5" style="font-weight: 600;">DRAFT</span> {% else %} <span class="text-warning h5"  style="font-weight: 600;">SAVED</span> {% endif %}
                         </div>
                         <div class="d-flex justify-content-between mb-4 text-white">
-                            <h6 class="text-white">Sub Total</h6>
-                            {{ invoice.subtotal }}
+                            <h6 class="text-white">Total Amount</h6>
+                            {{ payment.total }}
                         </div>
                         <div class="d-flex justify-content-between mb-4 text-white">
-                            <h6 class="text-white">Tax Amount</h6>
-                            {{invoice.tax_amount }}
-                        </div>
-                        {%if invoice.igst != 0 %}
-                        <div class="d-flex justify-content-between mb-4 text-white">
-                            <h6 class="text-white">IGST</h6>
-                            {{ invoice.igst }}
-                        </div>
-                        {%endif%}
-                        {%if invoice.cgst != 0 %}
-                        <div class="d-flex justify-content-between mb-4 text-white">
-                            <h6 class="text-white">CGST</h6>
-                            {{ invoice.cgst }}
-                        </div>
-                        {%endif%}
-                        {%if invoice.sgst != 0 %}
-                        <div class="d-flex justify-content-between mb-4 text-white">
-                            <h6 class="text-white">SGST</h6>
-                            {{ invoice.sgst }}
-                        </div>
-                        {%endif%}
-                        {% if invoice.shipping_charge != 0 %}
-                        <div class="d-flex justify-content-between mb-4 text-white">
-                            <h6 class="text-white">Shipping Charge</h6>
-                            {{ invoice.shipping_charge}}
-                        </div>
-                        {% endif %}
-                        {% if invoice.adjustment != 0 %}
-                        <div class="d-flex justify-content-between mb-4 text-white">
-                            <h6 class="text-white">Adjustment</h6>
-                            {{invoice.adjustment }}
-                        </div>
-                        {% endif %}
-                        <hr class="my-4 text-white">
-                        <div class="d-flex justify-content-between mb-4 text-white">
-                            <h6 class="text-white">Grand Total</h6>
-                            <span class="font-weight-bold">{{ invoice.grandtotal }}</span>
+                            <h6 class="text-white">Balance</h6>
+                            {{payment.balance }}
                         </div>
                       </div>
                     </div>
@@ -646,7 +619,7 @@
                   <div class="row mt-1">
                     <div class="row px-4">
                       <div class="col-md-8">
-                        <h5 class="fw-bold" style="border-bottom: 1px solid rgba(128, 128, 128, 0.6); width: fit-content;">Payment_Made Details</h5>
+                        <h5 class="fw-bold" style="border-bottom: 1px solid rgba(128, 128, 128, 0.6); width: fit-content;">Payment_Made Bill Details</h5>
                       </div>
                       <div class="col-md-4"></div>
                     </div>
@@ -695,77 +668,65 @@
 
                         <div class="ml-4 mt-2" style="color: black;">
                             <div class="row">
-                                <div class="col-md-6 text-left">Rec. Invoice No:</div>
-                                <div class="col-md-5 text-right">{{invoice.rec_invoice_no}}</div>
+                                <div class="col-md-6 text-left">Payment Made No:</div>
+                                <div class="col-md-5 text-right">{{payment.payment_no}}</div>
                             </div>
-                            {% if invoice.salesOrder_no  %}
+                           
                             <div class="row">
-                                <div class="col-md-6 text-left">Order No:</div>
-                                <div class="col-md-5 text-right">{{invoice.salesOrder_no}}</div>
-                            </div>
-                            {% endif %}
-                            <div class="row">
-                                <div class="col-md-6 text-left">Customer Name:</div>
-                                <div class="col-md-5 text-right">{{invoice.customer.first_name}} {{invoice.customer.last_name}}</div>
+                                <div class="col-md-6 text-left">Vendor Name:</div>
+                                <div class="col-md-5 text-right">{{payment.vendor.first_name}} {{payment.vendor.last_name}}</div>
                             </div>
                             <div class="row">
-                                <div class="col-md-6 text-left">Start Date :</div>
-                                <div class="col-md-5 text-right">{{invoice.start_date | date:'d-m-Y'}}</div>
+                                <div class="col-md-6 text-left">Date :</div>
+                                <div class="col-md-5 text-right">{{payment.payment_date | date:'d-m-Y'}}</div>
                             </div>
-                            <div class="row">
-                                <div class="col-md-6 text-left">End Date:</div>
-                                <div class="col-md-5 text-right">{{invoice.end_date | date:'d-m-Y'}}</div>
-                            </div>
+                           
                         </div>
 
                         <div class="divider"></div>
 
                         <div class="equal-length-container" style="color: black; font-weight: bold;">
                             <div class="equal-length-item" style=" text-align: center;">
-                                Item
+                                Type
                                 <hr style="border-bottom: 1px solid black; margin-top:1vh; width:95%">
                             </div>
                             <div class="equal-length-item ml-2"  style=" text-align:center;">
-                                HSN
+                                Date
                                 <hr style="border-bottom: 1px solid black; margin-top:1vh; width:63%; margin-left: 10px;">
                             </div>
                             <div class="equal-length-item"  style=" text-align: center; ">
-                                Qty
-                                <hr style="border-bottom: 1px solid black; margin-top:1vh; width:60%;  margin-left: 10px;">
+                                Bill.No
+                                <hr style="border-bottom: 1px solid black; margin-top:1vh; width:60%; margin-left: 10px;">
                             </div>
                             <div class="equal-length-item"  style=" text-align: center; ">
-                                Rate
+                                Balance
                                 <hr style="border-bottom: 1px solid black; margin-top:1vh; width:65%;  margin-left: 10px;">
                             </div>
-                            <div class="equal-length-item"  style=" text-align: center; ">
-                                Tax
-                                <hr style="border-bottom: 1px solid black; margin-top:1vh; width:60%;  margin-left: 10px;">
-                            </div>
+                            
                             <div class="equal-length-item" style=" text-align: center; ">
-                                Total
+                              Payment
                                 <hr style="border-bottom: 1px solid black; margin-top:1vh; width:65%;  margin-left: 10px;">
                             </div>
                         </div>
-                        {% for i in invItems %}
+                        {% for i in  paybills %}
                         <div class="equal-length-container" style="color: black; font-size: small; word-wrap: break-word; margin-bottom: 1vh;">
                             <div class="equal-length-item"  style="text-align: center; margin-left: 2px;">
-                                {{i.item.item_name}}
+                                {{i.bill_type}}
                             </div>
                             <div class="equal-length-item" style="text-align: right;">
-                                {{i.hsn}}
+                                {{i.date| date:'d-m-Y'}}
                             </div>
                             <div class="equal-length-item" style="text-align: center; ">
-                                {{i.quantity}}
+                                {{i.bill_number}}
                             </div>
                             <div class="equal-length-item" style="text-align: center; ">
-                                {{i.price}}
-                            </div>
-                            <div class="equal-length-item" id="tax{{ forloop.counter }}">
-                                {{ i.tax_rate  }}%
+                                {{i.amount_due}}
                             </div>
                             <div class="equal-length-item" style="text-align: center; ">
-                                {{i.total}}
-                            </div>
+                              {{i.payment}}
+                          </div>
+                           
+                           
                         </div>
                         {% endfor %}
 
@@ -846,13 +807,13 @@
                             <section>
                               <div class="row py-3 bg-warning align-items-center">
                                 <div class="col-3">
-                                  <span class="bg-white text-black px-4 py-2" style="border-radius: 3px;">{{invoice.status}}</span>
+                                  <span class="bg-white text-black px-4 py-2" style="border-radius: 3px;">{{payment.status}}</span>
                                 </div>
                                 <div class="col-6">
-                                  <h4 class="text-white p-2 fw-bold">RECURRING INVOICE</h4>
+                                  <h4 class="text-white p-2 fw-bold text-center">PAYMENT MADE</h4>
                                 </div>
                                 <div class="col-3">
-                                  <span class="fw-bold me-2 h5 text-white float-end">#{{invoice.rec_invoice_no}}</span>
+                                  <span class="fw-bold me-2 h5 text-white float-end">#{{payment.payment_no}}</span>
                                 </div>
                               </div>
                             </section>
@@ -863,23 +824,23 @@
                                   <div class="col-7">
                                     <p><b class="text-black">From</b>,</p>
                                     <div style="margin-left: 10%;">
-                                      <h3>{{ invoice.company.company_name }}</h3>
+                                      <h3>{{ payment.company.company_name }}</h3>
                                       <p class="text-black"> 
-                                        {{ invoice.company.contact }} <br>
-                                        {{ invoice.company.address }} <br>
-                                        {{ invoice.company.city }} <br>
-                                        {{ invoice.company.state|slice:'5:' }},
-                                        {{ invoice.company.country }} <br>
-                                        {{ invoice.company.pincode }}
+                                        {{ payment.company.contact }} <br>
+                                        {{ payment.company.address }} <br>
+                                        {{ payment.company.city }} <br>
+                                        {{ payment.company.state|slice:'5:' }},
+                                        {{ payment.company.country }} <br>
+                                        {{ payment.company.pincode }}
                                       </p>
                                     </div>
                                   </div>
                                   <div class="col-5">
                                     <p><b class="text-black">To</b>,</p>
                                     <div style="margin-left: 10%;">
-                                      <h3>{{ invoice.customer.title }}. {{ invoice.customer.first_name }} {{ invoice.customer.last_name }}</h3>
+                                      <h3>{{ payment.vendor.title }}. {{ payment.vendor.first_name }} {{ payment.vendor.last_name }}</h3>
                                       <p class="text-black"> 
-                                        {{ invoice.billing_address|linebreaksbr }}
+                                        {{ payment.billing_address|linebreaksbr }}
                                       </p>
                                     </div>
                                   </div>
@@ -887,11 +848,11 @@
                                 <hr class="mx-3">
                                 <div class="row extra-info pb-3 text-black fw-bold">
                                   <div class="col-6">
-                                      <p>Rec. Invoice Date: <span>{{invoice.start_date | date:'d-m-Y'}}</span></p>
+                                      <p>Payment Made Date: <span>{{payment.payment_date | date:'d-m-Y'}}</span></p>
                                   </div>
                                   <div class="col-6">
-                                      <p>End Date : <span>{{invoice.end_date | date:'d-m-Y'}}</span></p>
-                                      <p>Payment Method : <span>{{invoice.payment_method}}</span></p>
+                                  
+                                      <p>Payment Method : <span>{{payment.payment_method}}</span></p>
                                   </div>
                                 </div>
                                 <hr class="mx-3">
@@ -902,25 +863,24 @@
                               <table class=" table table-hover table-bordered border-dark" id="templateTable1">
                                 <thead class="bg-warning">
                                   <tr class="text-center text-black" style="font-weight: bold;">
-                                    <td>Items</td>
-                                    <td>HSN</td>
-                                    <td>Price</td>
-                                    <td>Quantity</td>
-                                    <td>Tax</td>
-                                    <td>Discount</td>
-                                    <td>Total</td>
+                                    <td>Type</td>
+                                    <td>Date</td>
+                                    <td>Bill Number</td>
+                                    <td>Balance Amount</td>
+                                    <td>Payment</td>
+                                  
                                   </tr>
                                 </thead>
                                 <tbody>
-                                  {% for j in invItems %}
+                                  {% for j in paybills %}
                                   <tr class="text-black text-center">
-                                    <td style="color:black; text-align: center;">{{j.item.item_name}}</td>
-                                    <td style="color:black">{{j.hsn}}</td>
-                                    <td style="color:black">{{j.price}}</td>
-                                    <td style="color:black">{{j.quantity}}</td>
-                                    <td style="color:black">{{j.tax_rate}} %</td>
-                                    <td style="color:black">{{j.discount}} </td>
-                                    <td style="color:black">{{j.total}}</td>
+                                    <td style="color:black; text-align: center;">{{j.bill_type}}</td>
+                                    <td style="color:black">{{j.date}}</td>
+                                    <td style="color:black">{{j.bill_number}}</td>
+              
+                                    <td style="color:black">{{j.amount_due}}</td>
+                                    <td style="color:black">{{j.payment}} </td>
+                                  
                                   </tr>
                                   {%endfor%}
                                 </tbody>
@@ -934,65 +894,23 @@
                                       <table class="table table-borderless">
                                           <tbody>
                                               <tr >
-                                                  <td style="color: #000;">Sub Total</td>
+                                                  <td style="color: #000;">Total Amount</td>
                                                   <td style="color: #000;">:</td>
-                                                  <td class="text-right" style="color: #000;">{{invoice.subtotal}}</td>
+                                                  <td class="text-right" style="color: #000;">{{payment.total}}</td>
                                               </tr>
+                                              <tr >
+                                                <td style="color: #000;">Total Balance</td>
+                                                <td style="color: #000;">:</td>
+                                                <td class="text-right" style="color: #000;">{{payment.balance}}</td>
+                                            </tr>
                                               
-                                              {% if invoice.igst != 0 %}
-                                              <tr >
-                                                  <td style="color: #000;">IGST</td>
-                                                  <td style="color: #000;">:</td>
-                                                  <td class="text-right" style="color: #000;">{{invoice.igst}}</td>
-                                              </tr>
-                                              {% endif %}
-                                              {% if invoice.cgst != 0 %}
-                                              <tr>
-                                                  <td style="color: #000;">CGST</td>
-                                                  <td style="color: #000;">:</td>
-                                                  <td class="text-right" style="color: #000;">{{invoice.cgst}}</td>
-                                                  
-                                              </tr>
-                                              {% endif %}
-                                              {% if invoice.sgst != 0 %}
-                                              <tr>
-                                                  <td style="color: #000;">SGST</td>
-                                                  <td style="color: #000;">:</td>
-                                                  <td class="text-right" style="color: #000;">{{invoice.sgst}}</td>
-                                              </tr>
-                                              {% endif %}
-                                              <tr >
-                                                  <td style="color: #000;">Tax Amount</td>
-                                                  <td style="color: #000;">:</td>
-                                                  <td class="text-right" style="color: #000;">{{invoice.tax_amount}}</td>
-                                              </tr>
-                                              {% if invoice.shipping_charge != 0 %}
-                                              <tr >
-                                                  <td style="color: #000;">Shipping Charge</td>
-                                                  <td style="color: #000;">:</td>
-                                                  <td class="text-right" style="color: #000;">{{invoice.shipping_charge}}</td>
-                                              </tr>
-                                              {% endif %}
-                                              {% if invoice.adjustment != 0 %}
-                                              <tr >
-                                                  <td style="color: #000;">Adjustment</td>
-                                                  <td style="color: #000;">:</td>
-                                                  <td class="text-right" style="color: #000;">{{invoice.adjustment}}</td>
-                                              </tr>
-                                              {% endif %}
+                                           
+                                             
                                           </tbody>
       
                                       </table>
-                                      <hr style="background-color: #000000;">
-                                      <table class="table table-borderless">
-                                          <tbody>
-                                              <tr >
-                                                  <th style="color: #000;">Grand Total</th>
-                                                  <th style="color: #000;">:</th>
-                                                  <th class="text-right" style="color: #000;">{{invoice.grandtotal}} /-</th>
-                                              </tr>
-                                          </tbody>
-                                      </table>
+                                    
+                                     
                                   </div>
                               </div>
                           </section>
@@ -1010,13 +928,13 @@
                             <section>
                               <div class="row py-3 align-items-center">
                                 <div class="col-3">
-                                  <span class="bg-warning text-black px-4 py-2" style="border-radius: 3px;">{{invoice.status}}</span>
+                                  <span class="bg-warning text-black px-4 py-2" style="border-radius: 3px;">{{payment.status}}</span>
                                 </div>
-                                <div class="col-6">
-                                  <h4 class="text-black p-2 fw-bold">RECURRING INVOICE</h4>
+                                <div class="col-5">
+                                  <h4 class="text-black p-2 fw-bold text-center">PAYMENT MADE</h4>
                                 </div>
-                                <div class="col-3">
-                                  <span class="fw-bold me-2 h5 text-black float-end"><span class="fw-normal">Rec. Invoice No.</span><br>#{{invoice.rec_invoice_no}}</span>
+                                <div class="col-4">
+                                  <span class="fw-bold me-2 h5 text-black float-end"><span class="fw-normal">Payment Made No.</span><br>#{{payment.payment_no}}</span>
                                 </div>
                               </div>
                             </section>
@@ -1027,140 +945,99 @@
                                   <div class="col-7">
                                     <p class="bg-warning" style="border-top-right-radius: 4vh; border-bottom-right-radius: 4vh; width: fit-content; padding: 5px 60px 5px 10px;"><b class="text-black">COMPANY ADDRESS</b>,</p>
                                     <div style="margin-left: 10%;">
-                                      <h3>{{ invoice.company.company_name }}</h3>
+                                      <h3>{{ payment.company.company_name }}</h3>
                                       <p class="text-black"> 
-                                        {{ invoice.company.contact }} <br>
-                                        {{ invoice.company.address }} <br>
-                                        {{ invoice.company.city }} <br>
-                                        {{ invoice.company.state|slice:'5:' }},
-                                        {{ invoice.company.country }} <br>
-                                        {{ invoice.company.pincode }}
+                                        {{  payment.company.contact }} <br>
+                                        {{  payment.company.address }} <br>
+                                        {{  payment.company.city }} <br>
+                                        {{  payment.company.state|slice:'5:' }},
+                                        {{  payment.company.country }} <br>
+                                        {{  payment.company.pincode }}
                                       </p>
                                     </div>
                                   </div>
                                   <div class="col-5">
                                     <p class="bg-warning" style="border-top-right-radius: 4vh; border-bottom-right-radius: 4vh; width: fit-content; padding: 5px 60px 5px 10px;"><b class="text-black">BILLING ADDRESS</b>,</p>
                                     <div style="margin-left: 10%;">
-                                      <h3>{{ invoice.customer.title }}. {{ invoice.customer.first_name }} {{ invoice.customer.last_name }}</h3>
-                                      <p class="text-black"> 
-                                        {{ invoice.billing_address|linebreaksbr }}
-                                      </p>
+                                      <h3>{{ payment.vendor.title }}. {{ payment.vendor.first_name }} {{ payment.vendor.last_name }}</h3>
+                                    <p class="text-black"> 
+                                      {{ payment.billing_address|linebreaksbr }}
+                                    </p>
                                     </div>
                                   </div>
                                 </div>
-                                <hr class="mx-3">
-                                <div class="row extra-info pb-3 text-black fw-bold">
-                                  <div class="col-6">
-                                      <p>Rec. Invoice Date: <span>{{invoice.start_date | date:'d-m-Y'}}</span></p>
-                                      <p>Repeat Every: <span>{{invoice.repeat_every.repeat_every}}</span></p>
-                                  </div>
-                                  <div class="col-6">
-                                      <p>End Date : <span>{{invoice.end_date | date:'d-m-Y'}}</span></p>
-                                      <p>Payment Method : <span>{{invoice.payment_method}}</span></p>
-                                  </div>
-                                </div>
-                                <hr class="mx-3">
-                              </div>
-                            </section>
-    
-                            <section class="table-responsive mt-4">
-                              <table class=" table table-hover table-bordered border-dark" id="templateTable2">
-                                <thead class="bg-warning">
-                                  <tr class="text-center text-black" style="font-weight: bold;">
-                                    <td>Items</td>
-                                    <td>HSN</td>
-                                    <td>Price</td>
-                                    <td>Quantity</td>
-                                    <td>Tax</td>
-                                    <td>Discount</td>
-                                    <td>Total</td>
-                                  </tr>
-                                </thead>
-                                <tbody>
-                                  {% for j in invItems %}
-                                  <tr class="text-black text-center">
-                                    <td style="color:black; text-align: center;">{{j.item.item_name}}</td>
-                                    <td style="color:black">{{j.hsn}}</td>
-                                    <td style="color:black">{{j.price}}</td>
-                                    <td style="color:black">{{j.quantity}}</td>
-                                    <td style="color:black">{{j.tax_rate}} %</td>
-                                    <td style="color:black">{{j.discount}} </td>
-                                    <td style="color:black">{{j.total}}</td>
-                                  </tr>
-                                  {%endfor%}
-                                </tbody>
-                              </table>
-                            </section>
+                           
+                              
+                               
+                          <hr class="mx-3">
+                          <div class="row extra-info pb-3 text-black fw-bold">
+                            <div class="col-6">
+                                <p>Payment Made Date: <span>{{payment.payment_date | date:'d-m-Y'}}</span></p>
+                            </div>
+                            <div class="col-6">
+                            
+                                <p>Payment Method : <span>{{payment.payment_method}}</span></p>
+                            </div>
+                          </div>
+                          <hr class="mx-3">
+                        </div>
+                      </section>
 
-                            <section class="balance-info">
-                              <div class="row">
-                                  <div class="col-md-7"></div>
-                                  <div class="col-md-5">
-                                      <table class="table table-borderless">
-                                          <tbody>
-                                              <tr >
-                                                  <td style="color: #000;">Sub Total</td>
-                                                  <td style="color: #000;">:</td>
-                                                  <td class="text-right" style="color: #000;">{{invoice.subtotal}}</td>
-                                              </tr>
-                                              
-                                              {% if invoice.igst != 0 %}
-                                              <tr >
-                                                  <td style="color: #000;">IGST</td>
-                                                  <td style="color: #000;">:</td>
-                                                  <td class="text-right" style="color: #000;">{{invoice.igst}}</td>
-                                              </tr>
-                                              {% endif %}
-                                              {% if invoice.cgst != 0 %}
-                                              <tr>
-                                                  <td style="color: #000;">CGST</td>
-                                                  <td style="color: #000;">:</td>
-                                                  <td class="text-right" style="color: #000;">{{invoice.cgst}}</td>
-                                                  
-                                              </tr>
-                                              {% endif %}
-                                              {% if invoice.sgst != 0 %}
-                                              <tr>
-                                                  <td style="color: #000;">SGST</td>
-                                                  <td style="color: #000;">:</td>
-                                                  <td class="text-right" style="color: #000;">{{invoice.sgst}}</td>
-                                              </tr>
-                                              {% endif %}
-                                              <tr >
-                                                  <td style="color: #000;">Tax Amount</td>
-                                                  <td style="color: #000;">:</td>
-                                                  <td class="text-right" style="color: #000;">{{invoice.tax_amount}}</td>
-                                              </tr>
-                                              {% if invoice.shipping_charge != 0 %}
-                                              <tr >
-                                                  <td style="color: #000;">Shipping Charge</td>
-                                                  <td style="color: #000;">:</td>
-                                                  <td class="text-right" style="color: #000;">{{invoice.shipping_charge}}</td>
-                                              </tr>
-                                              {% endif %}
-                                              {% if invoice.adjustment != 0 %}
-                                              <tr >
-                                                  <td style="color: #000;">Adjustment</td>
-                                                  <td style="color: #000;">:</td>
-                                                  <td class="text-right" style="color: #000;">{{invoice.adjustment}}</td>
-                                              </tr>
-                                              {% endif %}
-                                          </tbody>
-      
-                                      </table>
-                                      <hr style="background-color: #000000;">
-                                      <table class="table table-borderless">
-                                          <tbody>
-                                              <tr >
-                                                  <th style="color: #000;">Grand Total</th>
-                                                  <th style="color: #000;">:</th>
-                                                  <th class="text-right" style="color: #000;">{{invoice.grandtotal}} /-</th>
-                                              </tr>
-                                          </tbody>
-                                      </table>
-                                  </div>
-                              </div>
-                          </section>
+                      <section class="table-responsive mt-4">
+                        <table class=" table table-hover table-bordered border-dark" id="templateTable1">
+                          <thead class="bg-warning">
+                            <tr class="text-center text-black" style="font-weight: bold;">
+                              <td>Type</td>
+                              <td>Date</td>
+                              <td>Bill Number</td>
+                              <td>Balance Amount</td>
+                              <td>Payment</td>
+                            
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {% for j in paybills %}
+                            <tr class="text-black text-center">
+                              <td style="color:black; text-align: center;">{{j.bill_type}}</td>
+                              <td style="color:black">{{j.date}}</td>
+                              <td style="color:black">{{j.bill_number}}</td>
+        
+                              <td style="color:black">{{j.amount_due}}</td>
+                              <td style="color:black">{{j.payment}} </td>
+                            
+                            </tr>
+                            {%endfor%}
+                          </tbody>
+                        </table>
+                      </section>
+
+                      <section class="balance-info">
+                        <div class="row">
+                            <div class="col-md-7"></div>
+                            <div class="col-md-5">
+                                <table class="table table-borderless">
+                                    <tbody>
+                                        <tr >
+                                            <td style="color: #000;">Total Amount</td>
+                                            <td style="color: #000;">:</td>
+                                            <td class="text-right" style="color: #000;">{{payment.total}}</td>
+                                        </tr>
+                                        <tr >
+                                          <td style="color: #000;">Total Balance</td>
+                                          <td style="color: #000;">:</td>
+                                          <td class="text-right" style="color: #000;">{{payment.balance}}</td>
+                                      </tr>
+                                        
+                                     
+                                       
+                                    </tbody>
+
+                                </table>
+                              
+                               
+                            </div>
+                        </div>
+                    </section>
 
                           </div>
                         </div>
@@ -1173,7 +1050,7 @@
                           <div class="" id="printdiv3">
                               <div class="row">
                                   <div class="col-sm-12 py-3" style="background-image: linear-gradient(#ffae1f, black); color: white;">
-                                      <p style="font-size: 4vh; text-align: center;">RECURRING INVOICE</p>
+                                      <p style="font-size: 4vh; text-align: center;">PAYMENT MADE</p>
                                       <p style=" text-align: center;"> {{cmp.company_name}} <br>
                                           {{cmp.address}} <br>
                                           {{cmp.city}},
@@ -1187,8 +1064,8 @@
                                       <!-- <div class="col-md-1"></div> -->
                                       <div class="col-6 py-3 px-5">
                                           <p style="color:black;"> <span style=" font-weight: bold;">To: </span><br>
-                                          {{invoice.customer.title}} {{invoice.customer.first_name}} {{invoice.customer.last_name}}<br>
-                                          {{invoice.billing_address|linebreaksbr }}
+                                          {{payment.vendor.title}} {{payment.vendor.first_name}} {{payment.vendor.last_name}}<br>
+                                          {{payment.billing_address|linebreaksbr }}
                                           </p>
                                       </div>
                                       <!-- <div class="col-md-1"></div> -->
@@ -1196,35 +1073,23 @@
                                           <table class="table table-borderless">
                                               <tbody>
                                                   <tr >
-                                                      <td style="color: #000; font-weight: bold;">Rec. Invoice No</td>
+                                                      <td style="color: #000; font-weight: bold;">Pay. Made No</td>
                                                       <td style="color: #000;">:</td>
-                                                      <td class="text-right" style="color: #000;">{{ invoice.rec_invoice_no }}</td>
+                                                      <td class="text-right" style="color: #000;">{{ payment.payment_no }}</td>
                                                   </tr>
-                                                  {%if invoice.salesOrder_no %}
+                                                 
                                                   <tr >
-                                                      <td style="color: #000; font-weight: bold;">Order No</td>
+                                                      <td style="color: #000; font-weight: bold;">Date</td>
                                                       <td style="color: #000;">:</td>
-                                                      <td class="text-right" style="color: #000;">{{ invoice.salesOrder_no }}</td>
-                                                  </tr>
-                                                  {% endif %}
-                                                  
-                                                  <tr >
-                                                      <td style="color: #000; font-weight: bold;">Start Date</td>
-                                                      <td style="color: #000;">:</td>
-                                                      <td class="text-right" style="color: #000;">{{invoice.start_date | date:'d-m-Y'}}<td>
+                                                      <td class="text-right" style="color: #000;">{{payment.payment_date | date:'d-m-Y'}}<td>
                                                   </tr>
    
-                                                  <tr>
-                                                      <td style="color: #000; font-weight: bold;">End Date</td>
-                                                      <td style="color: #000;">:</td>
-                                                      <td class="text-right" style="color: #000;">{{invoice.end_date | date:'d-m-Y'}}</td>
-                                                      
-                                                  </tr>
+                                                  
 
                                                   <tr>
                                                       <td style="color: #000; font-weight: bold;">Payment Method</td>
                                                       <td style="color: #000;">:</td>
-                                                      <td class="text-right" style="color: #000;">{{invoice.payment_method}}</td>
+                                                      <td class="text-right" style="color: #000;">{{payment.payment_method}}</td>
                                                       
                                                   </tr>
                                               </tbody>
@@ -1236,27 +1101,26 @@
                                   <div class="col-md-12 px-4">
                                       <table class="table table-hover table-bordered  template3table" id="table3">
                                           <thead class="bg-warning">
-                                              <tr class="template3tablehead">
-                                                  <th class="text-center text-black">Items</th>
-                                                  <th class="text-center text-black">HSN</th>
-                                                  <th class="text-center text-black">Quantity</th>
-                                                  <th class="text-center text-black">Rate</th>
-                                                  <th class="text-center text-black">Tax</th>
-                                                  <th class="text-center text-black">Discount</th>
-                                                  <th class="text-center text-black">Total</th>
-                                              </tr>
+                                            <tr class="text-center text-black" style="font-weight: bold;">
+                                              <td>Type</td>
+                                              <td>Date</td>
+                                              <td>Bill Number</td>
+                                              <td>Balance Amount</td>
+                                              <td>Payment</td>
+                                            
+                                            </tr>
                                           </thead>
                                           <tbody>
-                                              {% for itm in invItems %}
-                                                  <tr>
-                                                      <td class="text-center" style="color: black;">{{ itm.item.item_name}}</td>
-                                                      <td class="text-center" style="color: black;">{{ itm.hsn }}</td>
-                                                      <td class="text-center" style="color: black;">{{ itm.quantity }}</td>
-                                                      <td class="text-center" style="color: black;">{{ itm.price }}</td>
-                                                      <td class="text-center" style="color: black;">{{ itm.tax_rate }}%</td>
-                                                      <td class="text-center" style="color: black;">{{ itm.discount }}</td>
-                                                      <td class="text-center" style="color: black;">{{ itm.total }}</td>
-                                                  </tr>
+                                            {% for j in paybills %}
+                                            <tr class="text-black text-center">
+                                              <td style="color:black; text-align: center;">{{j.bill_type}}</td>
+                                              <td style="color:black">{{j.date}}</td>
+                                              <td style="color:black">{{j.bill_number}}</td>
+                        
+                                              <td style="color:black">{{j.amount_due}}</td>
+                                              <td style="color:black">{{j.payment}} </td>
+                                            
+                                            </tr>
                                               {% endfor %} 
                                           </tbody>
                                       </table>
@@ -1268,68 +1132,24 @@
                                       <div class="col-md-4">
                                           <br>
                                           <table class="table table-borderless">
-                                              <tbody>
-                                                  <tr >
-                                                      <td style="color: #000;">Sub Total</td>
-                                                      <td style="color: #000;">:</td>
-                                                      <td class="text-right" style="color: #000;">{{invoice.subtotal}}</td>
-                                                  </tr>
-                                                  
-                                                  {% if invoice.igst != 0 %}
-                                                  <tr >
-                                                      <td style="color: #000;">IGST</td>
-                                                      <td style="color: #000;">:</td>
-                                                      <td class="text-right" style="color: #000;">{{invoice.igst}}</td>
-                                                  </tr>
-                                                  {% endif %}
-                                                  {% if invoice.cgst != 0 %}
-                                                  <tr>
-                                                      <td style="color: #000;">CGST</td>
-                                                      <td style="color: #000;">:</td>
-                                                      <td class="text-right" style="color: #000;">{{invoice.cgst}}</td>
-                                                      
-                                                  </tr>
-                                                  {% endif %}
-                                                  {% if invoice.sgst != 0 %}
-                                                  <tr>
-                                                      <td style="color: #000;">SGST</td>
-                                                      <td style="color: #000;">:</td>
-                                                      <td class="text-right" style="color: #000;">{{invoice.sgst}}</td>
-                                                  </tr>
-                                                  {% endif %}
-                                                  <tr >
-                                                      <td style="color: #000;">Tax Amount</td>
-                                                      <td style="color: #000;">:</td>
-                                                      <td class="text-right" style="color: #000;">{{invoice.tax_amount}}</td>
-                                                  </tr>
-                                                  {% if invoice.shipping_charge != 0 %}
-                                                  <tr >
-                                                      <td style="color: #000;">Shipping Charge</td>
-                                                      <td style="color: #000;">:</td>
-                                                      <td class="text-right" style="color: #000;">{{invoice.shipping_charge}}</td>
-                                                  </tr>
-                                                  {% endif %}
-                                                  {% if invoice.adjustment != 0 %}
-                                                  <tr >
-                                                      <td style="color: #000;">Adjustment</td>
-                                                      <td style="color: #000;">:</td>
-                                                      <td class="text-right" style="color: #000;">{{invoice.adjustment}}</td>
-                                                  </tr>
-                                                  {% endif %}
-                                              </tbody>
+                                            <tbody>
+                                              <tr >
+                                                  <td style="color: #000;">Total Amount</td>
+                                                  <td style="color: #000;">:</td>
+                                                  <td class="text-right" style="color: #000;">{{payment.total}}</td>
+                                              </tr>
+                                              <tr >
+                                                <td style="color: #000;">Total Balance</td>
+                                                <td style="color: #000;">:</td>
+                                                <td class="text-right" style="color: #000;">{{payment.balance}}</td>
+                                            </tr>
+                                              
+                                           
+                                             
+                                          </tbody>
           
                                           </table>
-                                          <hr style="background-color: #000000;">
-                                          <table class="table table-borderless">
-                                              <tbody>
-                                                  <tr >
-                                                      <th style="color: #000;">Grand Total</th>
-                                                      <th style="color: #000;">:</th>
-                                                      <th class="text-right" style="color: #000;">{{invoice.grandtotal}}</th>
-                                                  </tr>
-                                                  <tr >
-                                              </tbody>
-                                          </table>
+                                         
                                       </div>
                                   </div>
                               </section> 
