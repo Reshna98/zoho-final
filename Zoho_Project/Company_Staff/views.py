@@ -27802,8 +27802,8 @@ def add_paymentmade(request):
                     bill_type=t,  
                     bill_number=bn,
                     date=d,
-                    amount_due=float(ba),
-                    payment=float(pa)
+                    amount_due=ba,
+                    payment=pa,
                     )
 
             payment_made_History.objects.create(
@@ -27898,5 +27898,119 @@ def payment_overview(request, id):
             'cmp':cmp,'allmodules':allmodules, 'details':dash_details, 'payment':payment, 'paybills': paybills, 'allpays':paymade, 'comments':cmts, 'history':hist, 'last_history':last_history, 'created':created,
         }
         return render(request, 'zohomodules/payment_made/payment_overview.html', context)
+    else:
+        return redirect('/')
+
+def addPaymentMadeComment(request, id):
+    if 'login_id' in request.session:
+        log_id = request.session['login_id']
+        log_details= LoginDetails.objects.get(id=log_id)
+        if log_details.user_type == 'Company':
+            com = CompanyDetails.objects.get(login_details = log_details)
+        else:
+            com = StaffDetails.objects.get(login_details = log_details).company
+
+        pay_made = payment_made.objects.get(id = id)
+        if request.method == "POST":
+            cmt = request.POST['comment'].strip()
+
+            payment_made_Comments.objects.create(company = com, payment_made= pay_made, comments = cmt)
+            return redirect(payment_overview, id)
+        return redirect(payment_overview, id)
+    return redirect('/')
+
+def deletePaymentmadeComment(request,id):
+    if 'login_id' in request.session:
+        cmt = payment_made_Comments.objects.get(id = id)
+        payId = cmt.payment_made.id
+        cmt.delete()
+        return redirect(payment_overview, payId)
+    else:
+        return redirect('/')
+
+def pmade_attachfile(request, id):
+    if 'login_id' in request.session:
+        pay = payment_made.objects.get(id = id)
+
+        if request.method == 'POST' and len(request.FILES) != 0:
+            pay.document = request.FILES.get('file')
+            pay.save()
+
+        return redirect(payment_overview, id)
+    else:
+        return redirect('/')
+
+def delete_paymentmade(request, id):
+    if 'login_id' in request.session:
+        log_id = request.session['login_id']
+        log_details= LoginDetails.objects.get(id=log_id)
+        if log_details.user_type == 'Company':
+            com = CompanyDetails.objects.get(login_details = log_details)
+        else:
+            com = StaffDetails.objects.get(login_details = log_details).company
+
+        payMade = payment_made.objects.get( id = id)
+        
+        payment_made_bills.objects.filter(payment_made = payMade).delete()
+
+        if payment_made_Reference.objects.filter(company = com).exists():
+            deleted = payment_made_Reference.objects.get(company = com)
+            if int(payMade.reference_no) > int(deleted.reference_number):
+                deleted.reference_number = payMade.reference_no
+                deleted.save()
+        else:
+            payment_made_Reference.objects.create(company = com, login_details = com.login_details, reference_number = payMade.reference_no)
+        
+        payMade.delete()
+        return redirect(payment_mades)
+
+def sharepaymentEmail(request,id):
+    if 'login_id' in request.session:
+        log_id = request.session['login_id']
+        log_details= LoginDetails.objects.get(id=log_id)
+        if log_details.user_type == 'Company':
+            com = CompanyDetails.objects.get(login_details = log_details)
+        else:
+            com = StaffDetails.objects.get(login_details = log_details).company
+        
+        pay = payment_made.objects.get(id = id)
+        bills = payment_made_bills.objects.filter(payment_made = pay)
+        try:
+            if request.method == 'POST':
+                emails_string = request.POST['email_ids']
+
+                # Split the string by commas and remove any leading or trailing whitespace
+                emails_list = [email.strip() for email in emails_string.split(',')]
+                email_message = request.POST['email_message']
+                # print(emails_list)
+            
+                context = {'payMade':pay, 'payMadeBills':bills,'cmp':com}
+                template_path = 'zohomodules/payment_made/payment_made_pdf.html'
+                template = get_template(template_path)
+
+                html  = template.render(context)
+                result = BytesIO()
+                pdf = pisa.pisaDocument(BytesIO(html.encode("ISO-8859-1")), result)
+                pdf = result.getvalue()
+                filename = f'Payment_Made_{pay.payment_no}'
+                subject = f"Payment_Made_{pay.payment_no}"
+                # from django.core.mail import EmailMessage as EmailMsg
+                email = EmailMsg(subject, f"Hi,\nPlease find the attached Payment Made for - Payment_Made-{pay.payment_no}. \n{email_message}\n\n--\nRegards,\n{com.company_name}\n{com.address}\n{com.state} - {com.country}\n{com.contact}", from_email=settings.EMAIL_HOST_USER, to=emails_list)
+                email.attach(filename, pdf, "application/pdf")
+                email.send(fail_silently=False)
+
+                messages.success(request, 'Payment_Made details has been shared via email successfully..!')
+                return redirect(payment_overview,id)
+        except Exception as e:
+            print(e)
+            messages.error(request, f'{e}')
+            return redirect(payment_overview,id)
+
+def convert_paymade(request,id):
+    if 'login_id' in request.session:
+        pay = payment_made.objects.get(id = id)
+        pay.status = 'Saved'
+        pay.save()
+        return redirect(payment_overview, id)
     else:
         return redirect('/')

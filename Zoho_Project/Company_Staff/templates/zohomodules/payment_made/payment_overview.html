@@ -357,8 +357,8 @@
     <nav aria-label="breadcrumb">
       <ol class="breadcrumb">
         <li class="breadcrumb-item"><a href="{% url 'company_dashboard' %}" class="text-warning-emphasis">Dashboard</a></li>
-        <li class="breadcrumb-item"><a class="text-warning-emphasis">Sales</a></li>
-        <li class="breadcrumb-item"><a href="{% url 'recurringInvoice' %}" class="text-warning-emphasis">Recurring Invoice</a></li>
+        <li class="breadcrumb-item"><a class="text-warning-emphasis">Purchase</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'payment_mades' %}" class="text-warning-emphasis">Payment Made</a></li>
         <li class="breadcrumb-item" aria-current="page" id="over">Overview</li>
         <li class="breadcrumb-item" aria-current="page" id="tmplt" style="display: none;">Templates</li>
         <li class="breadcrumb-item" aria-current="page" id="slp" style="display: none;">Slip</li>
@@ -381,7 +381,7 @@
                   <div class="dropdown-menu ">
                       <a class="dropdown-item text-black" href="" >All</a>
                       <a class="dropdown-item text-black" onclick="sortTable(0)">Name</a>
-                      <a class="dropdown-item text-black" onclick="sortTable(1)">RI NO.</a>
+                      <a class="dropdown-item text-black" onclick="sortTable(1)">Payment NO.</a>
                   </div>
   
                   <a class="btn btn-outline-warning small_btn mt-4" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" role="button">
@@ -392,7 +392,7 @@
                     <a class="dropdown-item text-black" onclick="filterTable('Saved')">Saved</a>
                     <a class="dropdown-item text-black" onclick="filterTable('Draft')">Draft</a>
                   </div>
-                  <a class="btn btn-outline-warning small_btn mt-4" role="button" href="{% url 'addRecurringInvoice' %}">
+                  <a class="btn btn-outline-warning small_btn mt-4" role="button" href="{% url 'payment_made_add' %}">
                     <i class="fa fa-plus"></i>
                   </a>
                 </div>
@@ -402,15 +402,15 @@
                     <div class="table-responsive">
                       <table class="table text-white" id="sidetable">
                         <tbody>
-                          {% for inv in allInvoices %}
-                          <tr onclick="window.location.href=`{% url 'viewRecurringInvoice' inv.id %}`" style="cursor: pointer;">
+                          {% for pay in allpays %}
+                          <tr onclick="window.location.href=`{% url 'payment_overview' pay.id %}`" style="cursor: pointer;">
                             <td>
-                              <span class="name"><b>{{ inv.customer.title }} {{ inv.customer.first_name }} {{ inv.customer.last_name }}</b></span><br><br>
-                              <span class="invNo">{{ inv.rec_invoice_no }}</span>
+                              <span class="name"><b>{{ pay.vendor.title }} {{ pay.vendor.first_name }} {{ pay.vendor.last_name }}</b></span><br><br>
+                              <span class="payNo" >{{ pay.payment_no }}</span>
                             </td>
                             <td>
-                              <span style="float: right;" class="amt">&#8377;{{ inv.balance }}</span><br><br>
-                              <span style="float: right;" class="stat">{{inv.status}}</span>
+                              <span style="float: right;" >&#8377;{{ pay.balance }}</span><br><br>
+                              <span style="float: right;" class="stat">{{pay.status}}</span>
                             </td>
                           </tr>
                           {% endfor %}
@@ -453,15 +453,15 @@
                     </div>
                     <div class="col-md-6">
                       <div class="d-sm-flex" style="float: right;">
-                        {% if invoice.status == 'Draft' %}
-                        <a class="btn btn-outline-warning small_btn mt-2 ms-1" onclick="return confirm('Do you want to convert this Draft to Saved ?')" title="CONVERT" id="convert_btn" href="{% url 'convertRecurringInvoice' invoice.id %}">
+                        {% if payment.status == 'Draft' %}
+                        <a class="btn btn-outline-warning small_btn mt-2 ms-1" onclick="return confirm('Do you want to convert this Draft to Saved ?')" title="CONVERT" id="convert_btn" href="{%url 'convert_paymade' payment.id %}">
                           <i class="fa fa-exchange"></i>
                         </a>
                         {% endif %}
                         <a class="btn btn-outline-warning small_btn mt-2 ms-1" title="EDIT" id="edit_btn" href="">
                           <i class="fa fa-pencil"></i>
                         </a>
-                        <a class="btn btn-outline-warning small_btn mt-2 ms-1" href="" onclick="return confirm('Are you sure you want to delete this Recurring Invoice - {{invoice.rec_invoice_no}} ?')" title="DELETE" id="delete_btn">
+                        <a class="btn btn-outline-warning small_btn mt-2 ms-1" href="{%url 'delete_paymentmade' payment.id%}" onclick="return confirm('Are you sure you want to delete this Payment Made - {{payment.payment_no}} ?')" title="DELETE" id="delete_btn">
                           <i class="fa fa-trash"></i>
                         </a>
                         <a class="btn btn-outline-warning small_btn mt-2 ms-1" style="display: none;" title="SHARE" id="share_btn" data-bs-toggle="dropdown" aria-expanded="false">
@@ -478,8 +478,8 @@
                       </a>
                       <div class="dropdown-menu" aria-labelledby="attach_btn">
                           <a class="dropdown-item text-black" data-toggle="modal" data-target="#bnk_files">Add Document</a>
-                          {% if invoice.document != "" %} 
-                          <a class="dropdown-item text-black" download href="{{invoice.document.url}}">Download Document</a>
+                          {% if payment.document != "" %} 
+                          <a class="dropdown-item text-black" download href="{{payment.document.url}}">Download Document</a>
                           {% endif %}
                       </div>
                       
@@ -516,7 +516,7 @@
                     </div>
                   </div>
                   <div class="row">
-                    <h1 class="text-black mt-3 ps-5" style="text-align: left;"># {{invoice.rec_invoice_no}}</h1>
+                    <h1 class="text-black mt-3 ps-5" style="text-align: left;"># {{payment.payment_no}}</h1>
                     <hr class="text-black" style="margin-left: 5%; margin-right: 5%">
                     <div class="col-md-6 p-4">
                       <div class="row">
@@ -597,7 +597,7 @@
                     
 
                     <div class="col-md-6 px-3">
-                      <div class="px-3 py-3 mb-3" style="background-color: #383838; border-radius: 6px;">
+                      <div class="px-3 py-3 mb-3" style="background-color:black; border-radius: 6px;">
                         <h4 class="text-white my-3" style="text-align: center;">Payment Made Amount Details</h4>
                         <hr class="text-white" style="margin-left: 5%; margin-right: 5%">
                         <div class="d-flex justify-content-between mb-4">
@@ -732,44 +732,25 @@
 
                         <div class="subtot mt-5">
                             <div class="subtot-item d-flex justify-content-between">
-                                <span>Subtotal</span>
-                                <span><span>&#8377; </span>{{invoice.subtotal}}</span>
+                                <span>Total Amount</span>
+                                <span><span>&#8377; </span>{{payment.total}}</span>
                             </div>
                             <div class="subtot-item d-flex justify-content-between">
-                                <span>Tax Amount</span>
-                                <span><span>&#8377; </span>{{invoice.tax_amount}}</span>
+                                <span>Total Balance</span>
+                                <span><span>&#8377; </span>{{payment.balance}}</span>
                             </div>
-                            {% if invoice.igst == 0 %}
-                            <div class="subtot-item d-flex justify-content-between">
-                                <span>CGST</span>
-                                <span><span>&#8377; </span>{{invoice.cgst}}</span>
-                            </div>
-                            <div class="subtot-item d-flex justify-content-between">
-                                <span>SGST</span>
-                                <span><span>&#8377; </span>{{invoice.sgst}}</span>
-                            </div>
-                            {% else %}
-                            <div class="subtot-item d-flex justify-content-between">
-                                <span>IGST</span>
-                                <span><span>&#8377; </span>{{invoice.igst}}</span>
-                            </div>
-                            {% endif %}
-                            {% if invoice.adjustment != 0 %}
-                            <div class="subtot-item d-flex justify-content-between">
-                                <span>Adjustment</span>
-                                <span><span>&#8377; </span>{{invoice.adjustment}}</span>
-                            </div>
-                            {% endif %}
+                           
+                          
                         </div>
-                        <div class="divider"></div>
-                        <div class="grandtot fw-bold d-flex justify-content-between">
+                        <!-- <div class="divider"></div> -->
+                        <!-- <div class="grandtot fw-bold d-flex justify-content-between">
                             <span><strong>TOTAL</strong></span>
                             <span><strong><span>&#8377; </span>{{invoice.grandtotal}}</strong></span>
-                        </div>
+                        </div> -->
                         <div class="divider"></div>
                         <div class="paid-by mb-4 d-flex justify-content-between">
                             <span>Paid By:</span>
-                            <span>{{invoice.payment_method}}</span>
+                            <span>{{payment.payment_method}}</span>
                         </div>
                         <div class="createdby d-flex justify-content-between">
                             <p class="">Created By:</p>
@@ -1181,13 +1162,13 @@
   <div class="modal-dialog">
     <div class="modal-content" style="background-color: #3b3b3b;">
       <div class="modal-header">
-        <h3 class="modal-title text-light" id="exampleModalLabel">Share Recurring Invoice</h3>
+        <h3 class="modal-title text-light" id="exampleModalLabel">Share Payment Made</h3>
         <button type="button" class="btn close" data-dismiss="modal" aria-label="Close">
           <span aria-hidden="true" style="font-size: x-large;">&times;</span>
         </button>
       </div>
       <div class="modal-body mx-3" style="background-color: #000;">
-        <form action="" method="post" id="share_to_email_form" class="needs-validation" novalidate enctype="multipart/form-data">
+        <form action="{%url 'sharepaymentEmail' payment.id %}" method="post" id="share_to_email_form" class="needs-validation" novalidate enctype="multipart/form-data">
           {%csrf_token%}
           <div class="form-group">
               <label for="emailIds">Email IDs</label>
@@ -1225,7 +1206,7 @@
         </button>
       </div>
       <div class="modal-body mx-3" style="background-color: #000;">
-        <form action="" method="post" class="needs-validation" novalidate enctype="multipart/form-data">
+        <form action="{%url 'pmade_attachfile' payment.id%}" method="post" class="needs-validation" novalidate enctype="multipart/form-data">
           {%csrf_token%}
           <div class="row mt-2">
             <div class="col-md-3">
@@ -1263,7 +1244,7 @@
         </button>
       </div>
       <div class="modal-body mx-3" style="background-color: #000;">
-        <form action="" method="post" class="needs-validation" novalidate enctype="multipart/form-data">
+        <form action="{%url 'addPaymentMadeComment' payment.id %}" method="post" class="needs-validation" novalidate enctype="multipart/form-data">
           {%csrf_token%}
           <div class="row mt-2">
             <div class="col-12">
@@ -1285,7 +1266,7 @@
                             <tr class="">
                                 <td class="text-center">{{forloop.counter }}</td>
                                 <td class="text-center">{{c.comments}}</td>
-                                <td class="text-center"><a class="text-danger" href="{% url 'deleteRecurringInvoiceComment' c.id %}" onclick="return confirm('Are you sure you want to delete.?')"><i class="fa fa-trash" style="font-size: 1.1rem;"></i></a></td>
+                                <td class="text-center"><a class="text-danger" href="{%url 'deletePaymentmadeComment' c.id %}" onclick="return confirm('Are you sure you want to delete.?')"><i class="fa fa-trash" style="font-size: 1.1rem;"></i></a></td>
                             </tr>
                             {% endfor %}
                         </tbody>
@@ -1428,8 +1409,8 @@
     var rows = Array.from(tbody.querySelectorAll('tr'));
     if (col == 1){
       rows.sort(function(a, b) {
-          var balanceA = parseFloat(a.querySelector('.amt').innerText.replace(/[^\d.-]/g, ''));
-          var balanceB = parseFloat(b.querySelector('.amt').innerText.replace(/[^\d.-]/g, ''));
+          var balanceA = parseFloat(a.querySelector('.payNo').innerText.replace(/[^\d.-]/g, ''));
+          var balanceB = parseFloat(b.querySelector('.payNo').innerText.replace(/[^\d.-]/g, ''));
           return balanceA - balanceB;
       });
     }else{
@@ -1603,12 +1584,12 @@
   }
 
   function slipPdf(){
-    var recInvNo = `{{invoice.rec_invoice_no }}`;
+    var payNo = `{{payment.payment_no }}`;
     var element = document.getElementById('slip_container');
     var opt =
     {
         margin: 1,
-        filename: 'RecurringInvoice_slip_'+ recInvNo + '.pdf',
+        filename: 'PaymentMade_slip_'+ payNo + '.pdf',
         image: { type: 'jpeg', quality: 0.98 },
         html2canvas: { scale: 2 },
         jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
