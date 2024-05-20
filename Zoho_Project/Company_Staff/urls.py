@@ -672,6 +672,13 @@ urlpatterns = [
     path('sharepaymentEmail/<int:id>/',views.sharepaymentEmail,name='sharepaymentEmail'),
     path('convert_paymade',views.convert_paymade,name='convert_paymade'),
     path('checkPayNumber',views.checkPayNumber,name='checkPayNumber'),
+    path('paymentPdf/<int:id>/',views.paymentPdf,name='paymentPdf'),
+    path('edit_payment_made/<int:id>/',views.edit_payment_made,name='edit_payment_made'),
+    path('update_paymentmade/<int:id>/',views.update_paymentmade,name='update_paymentmade'),
+    # path('',views.,name=''),
+    # path('',views.,name=''),
+    # path('',views.,name=''),
+    # path('',views.,name=''),
     # path('',views.,name=''),
     re_path(r'^static/(?P<path>.*)$', serve,{'document_root': settings.STATIC_ROOT}),
 ]

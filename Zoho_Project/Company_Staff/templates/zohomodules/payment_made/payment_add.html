@@ -475,8 +475,14 @@
                         </tr>
                     </thead>
                     <tbody id="items-table-body">
-                        <tr id='tab_row1'>
-                           
+                        <tr id='row1'>
+                        
+                                <!-- <td><input type="text" name="ptype[]" id="ptype" class="form-control bg-black text-white text-center type"  readonly></td>
+                                <td><input type="date" name="pdate[]" id="pdate" class="form-control bg-black text-white text-center date"  readonly></td>
+                                <td><input type="text" name="billnum[]" id="billnum" class="form-control bg-black text-white text-center billnum"  readonly></td>
+                                <td><input type="number" name="bal[]" id="bal" class="form-control bg-black text-white text-center bal" readonly></td>
+                                <td><input type="number" name="payment[]"  id="payment" class="form-control bg-black text-white text-center payment" placeholder="Enter Payment"></td> -->
+                            
                         </tr>
                     </tbody>
                     
@@ -528,7 +534,7 @@
                 <div class="mt-4">
                   <input type="submit" class="btn save_btn" style="background-color: chocolate; color: white;" value="SAVE" name="Saved" id="save">
                   <input class="btn save_btn" style="background-color: chocolate; color: white;" type="submit" value="DRAFT" name="Draft" id="draft">
-                  <input class="btn save_btn" style="background-color: chocolate; color: white;" type="reset" onclick="window.location.href=`{% url 'recurringInvoice' %}`" value="CANCEL" id="cancel">
+                  <input class="btn save_btn" style="background-color: chocolate; color: white;" type="reset" onclick="window.location.href=`{% url 'payment_mades' %}`" value="CANCEL" id="cancel">
                 </div>
               </form>
             </div>
@@ -2211,18 +2217,44 @@ function populateTable(data) {
       
         var rowHtml = '<tr>' +
   
-    '<td><input type="text" name="ptype[]" class="form-control bg-black text-white text-center type" value="' + item.type + '" readonly></td>' +
-    '<td><input type="date" name="pdate[]" class="form-control bg-black text-white text-center date" value="' + item.date + '" readonly></td>' +
-    '<td><input type="text" name="billnum[]" class="form-control bg-black text-white text-center billnum" value="' + item.bill_number + '" readonly></td>' +
-    '<td><input type="number" name="bal[]" class="form-control bg-black text-white text-center bal" value="' + item.balance_amount + '" readonly></td>' +
-    '<td><input type="number" name="payment[]" class="form-control bg-black text-white text-center payment" placeholder="Enter Payment" value="0"></td>' +
+    '<td><input type="text" name="ptype[]"  id="ptype" class="form-control bg-black text-white text-center type" value="' + item.type + '" readonly></td>' +
+    '<td><input type="date" name="pdate[]"  id="pdate" class="form-control bg-black text-white text-center date" value="' + item.date + '" readonly></td>' +
+    '<td><input type="text" name="billnum[]" id="billnum"  class="form-control bg-black text-white text-center billnum" value="' + item.bill_number + '" readonly></td>' +
+    '<td><input type="number" name="bal[]"  id="bal" class="form-control bg-black text-white text-center bal" value="' + item.balance_amount + '" readonly></td>' +
+    '<td><input type="number" name="payment[]" id="payment" class="form-control bg-black text-white text-center payment" placeholder="Enter Payment" value="0"></td>' +
 '</tr>';
-
+ 
+                            
 $('#items-table-body').append(rowHtml);
 
     });
     console.log('After loop');
 }
+// function populateTable(data) {
+//     console.log("Data to populate table:", data);
+//     $('#items-table-body').empty();
+    
+    
+//     $.each(data, function(index, item) {
+       
+//         var id = "row1" + index;
+
+      
+//         var rowHtml = '<tr id="' + id + '">' +
+//             '<td><input type="text" name="ptype[]" class="form-control bg-black text-white text-center type" value="' + item.type + '" readonly></td>' +
+//             '<td><input type="date" name="pdate[]" class="form-control bg-black text-white text-center date" value="' + item.date + '" readonly></td>' +
+//             '<td><input type="text" name="billnum[]" class="form-control bg-black text-white text-center billnum" value="' + item.bill_number + '" readonly></td>' +
+//             '<td><input type="number" name="bal[]" class="form-control bg-black text-white text-center bal" value="' + item.balance_amount + '" readonly></td>' +
+//             '<td><input type="number" name="payment[]" class="form-control bg-black text-white text-center payment" placeholder="Enter Payment" value="0"></td>' +
+//             '</tr>';
+
+//         // Append the row HTML to the table body
+//         $('#items-table-body').append(rowHtml);
+//     });
+
+//     console.log('After loop');
+// }
+
 
 function calculateTotal() {
     var totalAmount = 0;

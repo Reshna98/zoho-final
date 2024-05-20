@@ -27404,11 +27404,10 @@ def payment_made_add(request):
             dash_details = CompanyDetails.objects.get(login_details=log_details)
             company = dash_details
 
-        item=Items.objects.filter(company=company)
         allmodules= ZohoModules.objects.get(company=company,status='New')
         banks = Banking.objects.filter(company=company)
         vendors = Vendor.objects.filter(company=company)
-        items = Items.objects.filter(company=company)
+        
         payments=Company_Payment_Term.objects.filter(company_id = company)
         latest_paymade = payment_made.objects.filter(company =company).order_by('-id').first()
 
@@ -27451,12 +27450,10 @@ def payment_made_add(request):
                 'refno':new_number,
                 'payno':nxtpmade,
                 'details': dash_details,
-                'item': item,
                 'allmodules': allmodules,
                 'banks':banks,
                 'vendors':vendors,
                 'payments':payments,
-                'items':items,
                 'company':company,
         }
         return render(request,'zohomodules/payment_made/payment_add.html',context)
@@ -27763,8 +27760,8 @@ def add_paymentmade(request):
                 upi_number = None if request.POST['upi_id'] == "" else request.POST['upi_id'],
                 account_number = None if request.POST['bnk_id'] == "" else request.POST['bnk_id'],
 
-                total = 0.0 if request.POST['totalbal'] == "" else float(request.POST['totalbal']),
-                balance = 0.0 if request.POST['totalamt'] == "" else float(request.POST['totalamt']),
+                balance = 0.0 if request.POST['totalbal'] == "" else float(request.POST['totalbal']),
+                total = 0.0 if request.POST['totalamt'] == "" else float(request.POST['totalamt']),
                 description = request.POST['note'],
                 terms_and_conditions = request.POST['terms']
             )
@@ -27873,7 +27870,7 @@ def checkPayNumber(request):
     else:
        return redirect('/')
 
-def payment_overview(request, id):
+def payment_overview(request, id): 
     if 'login_id' in request.session:
         log_id = request.session['login_id']
         log_details= LoginDetails.objects.get(id=log_id)
@@ -28014,3 +28011,130 @@ def convert_paymade(request,id):
         return redirect(payment_overview, id)
     else:
         return redirect('/')
+
+def paymentPdf(request,id):
+    if 'login_id' in request.session:
+        log_id = request.session['login_id']
+        log_details= LoginDetails.objects.get(id=log_id)
+        if log_details.user_type == 'Company':
+            com = CompanyDetails.objects.get(login_details = log_details)
+        else:
+            com = StaffDetails.objects.get(login_details = log_details).company
+        
+        pay = payment_made.objects.get(id = id)
+        bills = payment_made_bills.objects.filter(payment_made = pay)
+    
+        context = {'payMade':pay, 'payMadeBills':bills,'cmp':com}
+        
+        template_path = 'zohomodules/payment_made/payment_made_pdf.html'
+        fname = 'Payment_Made_'+pay.payment_no
+        # Create a Django response object, and specify content_type as pdftemp_
+        response = HttpResponse(content_type='application/pdf')
+        response['Content-Disposition'] =f'attachment; filename = {fname}.pdf'
+        # find the template and render it.
+        template = get_template(template_path)
+        html = template.render(context)
+
+        # create a pdf
+        pisa_status = pisa.CreatePDF(
+        html, dest=response)
+        # if error then show some funny view
+        if pisa_status.err:
+            return HttpResponse('We had some errors <pre>' + html + '</pre>')
+        return response
+    else:
+        return redirect('/')
+
+def edit_payment_made(request, id):
+    if 'login_id' in request.session:
+        log_id = request.session['login_id']
+        log_details= LoginDetails.objects.get(id=log_id)
+        if log_details.user_type == 'Company':
+            cmp = CompanyDetails.objects.get(login_details = log_details)
+            dash_details = CompanyDetails.objects.get(login_details=log_details)
+        else:
+            cmp = StaffDetails.objects.get(login_details = log_details).company
+            dash_details = StaffDetails.objects.get(login_details=log_details)
+
+        allmodules= ZohoModules.objects.get(company = cmp)
+       
+        vend = Vendor.objects.filter(company = cmp, vendor_status = 'Active')
+        bnk = Banking.objects.filter(company = cmp)
+        payments=Company_Payment_Term.objects.filter(company_id = cmp)
+        payment = payment_made.objects.get(id = id)
+        payBills = payment_made_bills.objects.filter(payment_made =payment )
+
+        context = {
+            'cmp':cmp,'allmodules':allmodules, 'details':dash_details, 'vendors': vend,'pTerms':payments, 'banks':bnk,
+            'payment':payment, 'payBills': payBills,
+        }
+        return render(request, 'zohomodules/payment_made/payment_made_edit.html', context)
+    else:
+        return redirect('/')
+
+def update_paymentmade(request, id):
+    if 'login_id' in request.session:
+        log_id = request.session['login_id']
+        log_details= LoginDetails.objects.get(id=log_id)
+        if log_details.user_type == 'Company':
+            com = CompanyDetails.objects.get(login_details = log_details)
+        else:
+            com = StaffDetails.objects.get(login_details = log_details).company
+
+        pay_made = payment_made.objects.get(id = id)
+        if request.method == 'POST':
+            payNum = request.POST['payment_no']
+            pay_made.vendor = Vendor.objects.get(id = request.POST['vendId'])
+            pay_made.vendor_email = request.POST['vendor_email']
+            pay_made.billing_address = request.POST['bill_address']
+            pay_made.gst_type = request.POST['vendor_gst_type']
+            pay_made.gstin = request.POST['vendor_gstin']
+            pay_made.source_of_supply_of_supply = request.POST['source_of_supply']
+            pay_made.reference_no = request.POST['reference_number']
+            pay_made.payment_no = payNum
+            pay_made.payment_date = request.POST['date']
+            pay_made.payment_method = None if request.POST['payment_method'] == "" else request.POST['payment_method']
+            pay_made.cheque_number = None if request.POST['cheque_id'] == "" else request.POST['cheque_id']
+            pay_made.upi_number = None if request.POST['upi_id'] == "" else request.POST['upi_id']
+            pay_made.account_number = None if request.POST['bnk_id'] == "" else request.POST['bnk_id']
+            pay_made.balance = 0.0 if request.POST['totalbal'] == "" else float(request.POST['totalbal'])
+            pay_made.total = 0.0 if request.POST['totalamt'] == "" else float(request.POST['totalamt'])
+            pay_made.description = request.POST['note']
+            pay_made.terms_and_conditions = request.POST['terms']
+
+            if len(request.FILES) != 0:
+                pay_made.document=request.FILES.get('file')
+            pay_made.save()
+
+            types = request.POST.getlist('ptype[]')
+            dates = request.POST.getlist('pdate[]')
+            bill_numbers = request.POST.getlist('billnum[]')
+            balance_amounts = request.POST.getlist('bal[]')
+            payment_amounts = request.POST.getlist('payment[]')
+            payment_made_bills.objects.filter(payment_made=pay_made).delete()
+            for t, d, bn, ba, pa in zip(types, dates, bill_numbers, balance_amounts, payment_amounts):
+                payment_made_bills.objects.create(
+                    payment_made=pay_made,
+                    company=com,
+                    login_details=com.login_details,
+                    vendor=pay_made.vendor, 
+                    bill_type=t,  
+                    bill_number=bn,
+                    date=d,
+                    amount_due=ba,
+                    payment=pa
+                )
+
+
+            payment_made_History.objects.create(
+                company = com,
+                login_details = log_details,
+                payment_made = pay_made,
+                action = 'Edited'
+            )
+
+            return redirect(payment_overview, id)
+        else:
+            return redirect(payment_overview, id)
+    else:
+       return redirect('/')
