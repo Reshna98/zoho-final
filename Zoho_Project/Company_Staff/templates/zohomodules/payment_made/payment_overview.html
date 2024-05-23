@@ -483,7 +483,7 @@
                           {% endif %}
                       </div>
                       
-                        <a href="{%url 'paymentPdf' payment.id %}" class="btn btn-outline-warning small_btn mt-2 ms-1" style="display: none;" title="PDF" id="pdf_btn"> 
+                        <a href="{%url 'payment_Made_Pdf' payment.id %}" class="btn btn-outline-warning small_btn mt-2 ms-1" style="display: none;" title="PDF" id="pdf_btn"> 
                           <i class="fa fa-file-pdf"></i>
                         </a>
                         <a class="btn btn-outline-warning small_btn mt-2 ms-1" style="display: none;" onclick="slipPdf()" title="SLIP PDF" id="slipPdf_btn"> 
@@ -605,7 +605,7 @@
                             {% if payment.status == 'Draft' %} <span class="text-info h5" style="font-weight: 600;">DRAFT</span> {% else %} <span class="text-warning h5"  style="font-weight: 600;">SAVED</span> {% endif %}
                         </div>
                         <div class="d-flex justify-content-between mb-4 text-white">
-                            <h6 class="text-white">Total Amount</h6>
+                            <h6 class="text-white">Total Payment</h6>
                             {{ payment.total }}
                         </div>
                         <div class="d-flex justify-content-between mb-4 text-white">
@@ -732,7 +732,7 @@
 
                         <div class="subtot mt-5">
                             <div class="subtot-item d-flex justify-content-between">
-                                <span>Total Amount</span>
+                                <span>Total Payment</span>
                                 <span><span>&#8377; </span>{{payment.total}}</span>
                             </div>
                             <div class="subtot-item d-flex justify-content-between">
@@ -875,7 +875,7 @@
                                       <table class="table table-borderless">
                                           <tbody>
                                               <tr >
-                                                  <td style="color: #000;">Total Amount</td>
+                                                  <td style="color: #000;">Total Payment</td>
                                                   <td style="color: #000;">:</td>
                                                   <td class="text-right" style="color: #000;">{{payment.total}}</td>
                                               </tr>
@@ -999,7 +999,7 @@
                                 <table class="table table-borderless">
                                     <tbody>
                                         <tr >
-                                            <td style="color: #000;">Total Amount</td>
+                                            <td style="color: #000;">Total Payment</td>
                                             <td style="color: #000;">:</td>
                                             <td class="text-right" style="color: #000;">{{payment.total}}</td>
                                         </tr>
@@ -1115,7 +1115,7 @@
                                           <table class="table table-borderless">
                                             <tbody>
                                               <tr >
-                                                  <td style="color: #000;">Total Amount</td>
+                                                  <td style="color: #000;">Total Payment</td>
                                                   <td style="color: #000;">:</td>
                                                   <td class="text-right" style="color: #000;">{{payment.total}}</td>
                                               </tr>

@@ -1750,7 +1750,7 @@ class payment_made_bills(models.Model):
     payment_made = models.ForeignKey(payment_made, on_delete=models.CASCADE,null=True)
     bill_type = models.CharField(max_length=100, null=True, blank=True)
     bill_number=models.CharField(max_length=100,null=True)
-    date = models.DateField(auto_now_add=True)
+    date = models.DateField(auto_now_add=True,null=True, blank=True)
     amount_due= models.FloatField(default=0.0, null=True, blank=True)
     payment= models.FloatField(default=0.0, null=True, blank=True)
 

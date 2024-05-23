@@ -26769,8 +26769,8 @@ def importdebitnoteFromExcel(request):
                     rec_no,name,hsn,quantity,price,tax_percentage,discount,total = row
                     if int(rec_no) == int(recInvNo):
                         print(row)
-                        if discount is None:
-                            discount=0
+                        if payment is None:
+                            payment=0
                         if price is None:
                             price=0
                         if quantity is None:
@@ -28012,7 +28012,7 @@ def convert_paymade(request,id):
     else:
         return redirect('/')
 
-def paymentPdf(request,id):
+def payment_Made_Pdf(request,id):
     if 'login_id' in request.session:
         log_id = request.session['login_id']
         log_details= LoginDetails.objects.get(id=log_id)
@@ -28138,3 +28138,213 @@ def update_paymentmade(request, id):
             return redirect(payment_overview, id)
     else:
        return redirect('/')
+
+
+
+def download_paymentmade_SampleImportFile(request):
+    payMad_table_data = [['SLNO', 'VENDOR', 'DATE', 'SOURCE OF SUPPLY', 'PM NO', 'DESCRIPTION', 'TOTAL AMOUNT', 'BALANCE'],
+                         ['1', 'Kevin Debryne', '2024-03-20', '[KL]-Kerala', 'PM100', ' ', '1050', '1000']]
+    bill_table_data = [['PM NO', 'TYPE', 'DATE', 'BILL NUMBER', 'BALANCE AMOUNT', 'PAYMENT'],
+                       ['1', 'Test Item 1', '2024-03-20', 'RB01', '1000', '100']]
+
+    wb = Workbook()
+
+    sheet1 = wb.active
+    sheet1.title = 'payment_made'
+    sheet2 = wb.create_sheet(title='Payment_made_details')
+
+    # Populate the sheets with data
+    for row in payMad_table_data:
+        sheet1.append(row)
+
+    for row in bill_table_data:
+        sheet2.append(row)
+
+    # Create a response with the Excel file
+    response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    response['Content-Disposition'] = 'attachment; filename=payment_made_sample_file.xlsx'
+
+    # Save the workbook to the response
+    wb.save(response)
+
+    return response
+
+def import_payment_madeFromExcel(request):
+    if 'login_id' in request.session:
+        log_id = request.session['login_id']
+        log_details = LoginDetails.objects.get(id=log_id)
+        if log_details.user_type == 'Company':
+            com = CompanyDetails.objects.get(login_details=log_details)
+        else:
+            com = StaffDetails.objects.get(login_details=log_details).company 
+
+        current_datetime = timezone.now()
+        dateToday = current_datetime.date()
+
+        if request.method == "POST" and 'excel_file' in request.FILES:
+            excel_file = request.FILES['excel_file']
+            wb = load_workbook(excel_file)
+
+            # Check for 'payment_made' sheet
+            if 'payment_made' not in wb.sheetnames:
+                messages.error(request, '`payment_made` sheet not found.! Please check.')
+                return redirect(payment_mades)
+
+            # Check for 'Payment_made_details' sheet
+            if 'Payment_made_details' not in wb.sheetnames:
+                messages.error(request, '`Payment_made_details` sheet not found.! Please check.')
+                return redirect(payment_mades)
+
+            # Validate 'payment_made' sheet columns
+            ws = wb['payment_made']
+            pay_made_columns = ['SLNO', 'VENDOR', 'DATE', 'SOURCE OF SUPPLY', 'PM NO', 'DESCRIPTION', 'TOTAL AMOUNT', 'BALANCE']
+            pay_made_sheet = [cell.value for cell in ws[1]]
+            if pay_made_sheet != pay_made_columns:
+                messages.error(request, '`payment_made` sheet column names or order is not in the required format.! Please check.')
+                return redirect(payment_mades)
+
+            for row in ws.iter_rows(min_row=2, values_only=True):
+                slno, vendor, date, source_of_supply, pmno, description, totalamount, balance = row
+                if None in [slno, vendor, date, source_of_supply, pmno, totalamount, balance]:
+                    messages.error(request, '`payment_made` sheet entries missing required fields.! Please check.')
+                    return redirect(payment_mades)
+
+            # Validate 'Payment_made_details' sheet columns
+            ws = wb['Payment_made_details']
+            bills_columns = ['PM NO', 'TYPE', 'DATE', 'BILL NUMBER', 'BALANCE AMOUNT', 'PAYMENT']
+            bills_sheet = [cell.value for cell in ws[1]]
+            if bills_sheet != bills_columns:
+                messages.error(request, '`Payment_made_details` sheet column names or order is not in the required format.! Please check.')
+                return redirect(payment_mades)
+
+            for row in ws.iter_rows(min_row=2, values_only=True):
+                pm_no, type, date, billnumber, balanceamount, payment = row
+                if None in [pm_no, type, date, billnumber, balanceamount, payment]:
+                    messages.error(request, '`Payment_made_details` sheet entries missing required fields.! Please check.')
+                    return redirect(payment_mades)
+
+            # Import data from 'payment_made' sheet
+            incorrect_data = []
+            existing_pattern = []
+            ws = wb['payment_made']
+            for row in ws.iter_rows(min_row=2, values_only=True):
+                slno, vendor, date, source_of_supply, pmno, description, totalamount, balance = row
+                pm_No = slno
+                if slno is None:
+                    continue
+                latest_pay = payment_made.objects.filter(company = com).order_by('-id').first()
+                
+                new_number = int(latest_pay.reference_no) + 1 if latest_pay else 1
+
+                if payment_made_Reference.objects.filter(company = com).exists():
+                    deleted = payment_made_Reference.objects.get(company = com)
+                    
+                    if deleted:
+                        while int(deleted.reference_number) >= new_number:
+                            new_number+=1
+                
+
+                vend = vendor.split(' ')
+                if len(vend) > 2:
+                    vend[1] = vend[1] + ' ' + ' '.join(vend[2:])
+                    vend = vend[:2]
+                    fName = vend[0]
+                    lName = vend[1]
+                else:
+                    fName = vend[0]
+                    lName = vend[1]
+
+              
+                email = ""
+                gstType = ""
+                gstIn = ""
+                adrs = ""
+
+                if lName == "":  
+                    if not Vendor.objects.filter(company=com, first_name=fName, last_name=lName).exists():
+                        print('No Vendor1')
+                        incorrect_data.append(slno)
+                        continue
+                    try:
+                        v = Vendor.objects.filter(company=com, first_name=fName, last_name=lName).first()
+                        email = v.vendor_email
+                        gstType = v.gst_treatment
+                        gstIn = v.gst_number
+                        adrs = f"{v.billing_address}, {v.billing_city}\n{v.billing_state}\n{v.billing_country}\n{v.billing_pin_code}" 
+                    except Exception as e:
+                        print(f"Error: {e}")
+
+                elif fName != "" and lName != "":  
+                    if not Vendor.objects.filter(company=com, first_name=fName, last_name=lName).exists():
+                        print('No Vendor2')
+                        incorrect_data.append(slno)
+                        continue
+                    try:
+                        v = Vendor.objects.filter(company=com, first_name=fName, last_name=lName).first()
+                        email = v.vendor_email
+                        gstType = v.gst_treatment
+                        gstIn = v.gst_number
+                        adrs = f"{v.billing_address}, {v.billing_city}\n{v.billing_state}\n{v.billing_country}\n{v.billing_pin_code}"
+                    except Exception as e:
+                        print(f"Error: {e}")
+
+
+                if not date:
+                    date = dateToday
+                else:
+                    date = datetime.strptime(date, '%Y-%m-%d').date()
+
+                while payment_made.objects.filter(company = com, payment_no__iexact = pmno).exists():
+                    pmno = checkPayNumber(pmno)
+
+                payMade = payment_made(
+                    company=com,
+                    login_details=com.login_details,
+                    vendor=None if v is None else v,
+                    vendor_email=email,
+                    billing_address=adrs,
+                    gst_type=gstType,
+                    gstin=gstIn,
+                    payment_date=date,
+                    source_of_supply=source_of_supply,
+                    reference_no=new_number,
+                    payment_no= pm_No,
+                    payment_method=None,
+                    cheque_number=None,
+                    upi_number=None,
+                    account_number=None,
+                    total=float(totalamount),
+                    balance=float(balance),
+                    description=description,
+                    status="Draft"
+                )
+                payMade.save()
+
+                payment_made_History.objects.create(
+                    company=com,
+                    login_details=log_details,
+                    payment_made=payMade,
+                    action='Created'
+                )
+
+                # Import data from 'Payment_made_details' sheet
+                ws_bills = wb['Payment_made_details']
+                for row in ws_bills.iter_rows(min_row=2, values_only=True):
+                    pm_no, type, date, billnumber, balanceamount, payment = row
+                    if int(pm_no) == int(slno):
+                        payment_made_bills.objects.create(
+                            company=com,
+                            login_details=com.login_details,
+                            payment_made=payMade,
+                            bill_type=type,
+                            date=date,
+                            bill_number=billnumber,
+                            amount_due=float(balanceamount),
+                            payment=float(payment)
+                        )
+
+            messages.success(request, 'Data imported successfully.!')
+            return redirect(payment_mades)
+
+        return redirect(payment_mades)
+    return redirect('/')
